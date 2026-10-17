@@ -1,0 +1,6 @@
+{
+  "name": "Hotel Nordic Gate — Contemporary Scandinavian Hospitality",
+  "description": "Hotel Nordic Gate in Gothenburg, Sweden. Contemporary Scandinavian hospitality, indoor pool & relaxation, organic breakfast buffet, family rooms, and integrated reservation experience.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

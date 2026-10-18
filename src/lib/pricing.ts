@@ -100,3 +100,21 @@ export function generateBookingReference(prefix: string = 'SH'): string {
   const randomNum = Math.floor(10000 + Math.random() * 90000);
   return `${prefix}-${randomNum}`;
 }
+
+/**
+ * Generates an authentic online payment transaction reference (e.g. TXN-NG-20261018-8492)
+ */
+export function generateTransactionReference(): string {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `TXN-NG-${dateStr}-${randomSuffix}`;
+}
+
+/**
+ * Mask card number for PCI DSS compliant display (e.g. •••• •••• •••• 4242)
+ */
+export function maskCardNumber(cardNumber: string): string {
+  const clean = cardNumber.replace(/\D/g, '');
+  const last4 = clean.slice(-4) || '4242';
+  return `•••• •••• •••• ${last4}`;
+}

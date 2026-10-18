@@ -82,6 +82,7 @@ export interface SelectedExtra {
 
 export type ReservationStatus = 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled';
 export type PaymentStatus = 'paid' | 'deposit_paid' | 'pay_at_hotel';
+export type OnlinePaymentMethod = 'card' | 'swish' | 'klarna' | 'apple_pay';
 
 export interface Reservation {
   id: string;
@@ -105,6 +106,10 @@ export interface Reservation {
   vatRoomSEK: number;
   vatExtrasSEK: number;
   paymentStatus: PaymentStatus;
+  paymentMethod?: OnlinePaymentMethod;
+  paymentTransactionId?: string;
+  paymentCardMask?: string;
+  paymentPaidAt?: string;
   source: 'direct_website' | 'phone' | 'walk_in' | 'corporate';
   createdAt: string;
 }

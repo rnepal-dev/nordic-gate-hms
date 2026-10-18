@@ -221,6 +221,12 @@ export const GuestPortalView: React.FC = () => {
                         {formatSEK(activeReservation.totalSEK, lang)}
                       </span>
                     </div>
+                    {activeReservation.paymentTransactionId && (
+                      <div className="pt-2 text-[11px] text-[#25303A]/70 flex items-center justify-between border-t border-[#EDE7DC]">
+                        <span>{lang === 'sv' ? 'Betald online:' : 'Paid online:'} {activeReservation.paymentMethod || 'Kort'} ({activeReservation.paymentCardMask || 'Visa'})</span>
+                        <span className="font-mono">{activeReservation.paymentTransactionId}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

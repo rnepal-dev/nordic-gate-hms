@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateNights, calculateBookingPrice, formatSEK, generateBookingReference } from './pricing.ts';
+import { calculateNights, calculateBookingPrice, formatSEK, generateBookingReference, generateTransactionReference, maskCardNumber } from './pricing.ts';
 
 test('calculateNights correctly counts nights between dates', () => {
   assert.equal(calculateNights('2026-10-20', '2026-10-22'), 2);
@@ -61,4 +61,14 @@ test('formatSEK outputs proper Swedish kronor representation', () => {
 test('generateBookingReference produces SH- prefixed code', () => {
   const ref = generateBookingReference('SH');
   assert.match(ref, /^SH-\d{5}$/);
+});
+
+test('generateTransactionReference produces valid TXN-NG format', () => {
+  const txn = generateTransactionReference();
+  assert.match(txn, /^TXN-NG-\d{8}-\d{4}$/);
+});
+
+test('maskCardNumber properly obfuscates credit card number', () => {
+  assert.equal(maskCardNumber('4532 8192 3847 4242'), '•••• •••• •••• 4242');
+  assert.equal(maskCardNumber('1234'), '•••• •••• •••• 1234');
 });

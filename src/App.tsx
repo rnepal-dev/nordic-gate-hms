@@ -28,16 +28,16 @@ function AppContent() {
       const slug = currentRoute.replace('/rooms/', '');
       return <RoomDetailView slug={slug} />;
     }
-    if (currentRoute === '/faq' || currentRoute === '/hotel-info') {
+    if (currentRoute === '/faq' || currentRoute === '/hotel-info' || currentRoute === '/facilities' || currentRoute === '/contact') {
       return <FaqView />;
     }
-    if (currentRoute === '/dining') {
+    if (currentRoute === '/dining' || currentRoute === '/restaurant') {
       return <DiningView />;
     }
-    if (currentRoute === '/spa') {
+    if (currentRoute === '/spa' || currentRoute === '/wellness') {
       return <SpaView />;
     }
-    if (currentRoute === '/our-story') {
+    if (currentRoute === '/our-story' || currentRoute === '/about') {
       return <OurStoryView />;
     }
     if (currentRoute === '/booking') {

@@ -38,7 +38,7 @@ export const HotelPoliciesCard: React.FC<HotelPoliciesCardProps> = ({ policies, 
           <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
             {lang === 'sv' ? 'Praktisk Information' : 'Essential Policies'}
           </span>
-          <h3 className="font-serif text-2xl lg:text-3xl text-[#02070D] mt-1 font-bold">
+          <h3 className="type-h3 text-xl sm:text-2xl lg:text-3xl text-[#02070D] mt-1 font-semibold">
             {title || (lang === 'sv' ? 'Hotellregler & Villkor' : 'Hotel Policies & Guidelines')}
           </h3>
         </div>

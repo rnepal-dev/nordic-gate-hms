@@ -78,7 +78,7 @@ export const DiningView: React.FC = () => {
               <span aria-hidden="true" className="text-white/30">·</span>
               <span>Göteborg</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F8F5EF] tracking-wide leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F8F5EF] leading-tight">
               {lang === 'sv' ? 'Skandinavisk Frukostbuffé & Kvällsbistro' : 'Scandinavian Breakfast Buffet & Bistro'}
             </h1>
             <p className="text-sm sm:text-base text-[#EDE7DC]/90 leading-relaxed font-light">
@@ -118,7 +118,7 @@ export const DiningView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
               {lang === 'sv' ? 'Ingår alltid för samtliga hotellgäster' : 'Always Included with Your Room'}
             </span>
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D]">
               {lang === 'sv' ? 'Den Skandinaviska Ekologiska Frukostbuffén' : 'Scandinavian Organic Breakfast Buffet'}
             </h2>
             <p className="text-sm text-[#25303A] leading-relaxed">
@@ -133,7 +133,7 @@ export const DiningView: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 1
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Bageri & Pålägg' : 'Bakery & Deli'}
               </h3>
               <p className="leading-relaxed text-[#25303A]">
@@ -147,7 +147,7 @@ export const DiningView: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 2
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Varma Klassiker' : 'Hot Breakfast Favourites'}
               </h3>
               <p className="leading-relaxed text-[#25303A]">
@@ -161,7 +161,7 @@ export const DiningView: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 3
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Specialkost & Allergiutbud' : 'Special Dietary Corner'}
               </h3>
               <p className="leading-relaxed text-[#25303A]">
@@ -181,7 +181,7 @@ export const DiningView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
               {lang === 'sv' ? 'Kvällsmeny i Bistron' : 'Evening Bistro Menu'}
             </span>
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D]">
               {lang === 'sv' ? 'Vällagat, enkelt och genuint gott' : 'Swedish Classics & European Favourites'}
             </h2>
             <p className="text-sm text-[#25303A]">
@@ -205,7 +205,7 @@ export const DiningView: React.FC = () => {
             >
               <div>
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="font-serif text-xl font-bold text-[#02070D]">
+                  <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                     {lang === 'sv' ? dish.nameSv : dish.nameEn}
                   </h3>
                   <span className="px-3 py-1 rounded-md text-[11px] font-semibold bg-[#EDE7DC] text-[#02070D] border border-[#D3C8B9] shrink-0">
@@ -218,7 +218,7 @@ export const DiningView: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t border-[#EDE7DC] flex items-center justify-between mt-2">
-                <span className="font-serif text-2xl font-bold text-[#02070D] tabular-nums">
+                <span className="text-2xl font-bold text-[#02070D] tabular-nums">
                   {dish.price}
                 </span>
                 <span className="text-xs text-[#25303A]/70 font-medium">
@@ -237,7 +237,7 @@ export const DiningView: React.FC = () => {
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F2C777]">
               {lang === 'sv' ? 'Bordsbokning i Restaurangen' : 'Restaurant Table Reservation'}
             </span>
-            <h3 className="font-serif text-3xl lg:text-4xl text-[#F8F5EF]">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#F8F5EF]">
               {lang === 'sv' ? 'Boka bord för middag' : 'Reserve a Table for Dinner'}
             </h3>
             <p className="text-xs sm:text-sm text-[#D3C8B9]">
@@ -252,7 +252,7 @@ export const DiningView: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-[#BF8641] text-white flex items-center justify-center mx-auto shadow-md">
                 <Check className="w-6 h-6" />
               </div>
-              <h4 className="font-serif text-2xl text-[#F8F5EF]">
+              <h4 className="text-xl sm:text-2xl font-semibold text-[#F8F5EF]">
                 {lang === 'sv' ? 'Tack! Din bordsbokning är bekräftad' : 'Thank you! Table reservation confirmed'}
               </h4>
               <p className="text-xs sm:text-sm text-[#D3C8B9] max-w-md mx-auto">

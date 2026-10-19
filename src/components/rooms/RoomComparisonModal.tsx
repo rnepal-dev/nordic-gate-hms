@@ -22,7 +22,7 @@ export const RoomComparisonModal: React.FC<RoomComparisonModalProps> = ({ isOpen
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#0D1A26] text-[#F8F5EF] border-b border-white/10">
           <div>
-            <h3 className="font-serif text-xl tracking-wide text-[#F8F5EF]">
+            <h3 className="type-h3 text-lg sm:text-xl font-semibold tracking-tight text-[#F8F5EF]">
               {lang === 'sv' ? 'Jämför Rum & Sviter' : 'Compare Rooms & Suites'}
             </h3>
             <p className="text-xs text-[#D3C8B9]">
@@ -67,7 +67,7 @@ export const RoomComparisonModal: React.FC<RoomComparisonModalProps> = ({ isOpen
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <h4 className="font-serif text-lg text-slate-900 font-semibold mb-1">
+                  <h4 className="type-h4 text-base sm:text-lg text-slate-900 font-semibold mb-1">
                     {lang === 'sv' ? room.nameSv : room.name}
                   </h4>
                   <p className="text-xs text-[#BF8641] font-medium mb-3">

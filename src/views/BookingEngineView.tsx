@@ -236,7 +236,7 @@ export const BookingEngineView: React.FC = () => {
                 <span aria-hidden="true" className="text-white/30">·</span>
                 <span>{lang === 'sv' ? '100% Kontantfritt & Säkert' : '100% Cash-Free & Secure'}</span>
               </div>
-              <h1 className="font-serif text-3xl sm:text-4xl text-[#F8F5EF] mt-1">
+              <h1 className="type-h1 text-2xl sm:text-3xl lg:text-4xl text-[#F8F5EF] mt-1 font-bold">
                 {lang === 'sv' ? 'Boka din vistelse på Hotel Nordic Gate' : 'Reserve Your Stay at Hotel Nordic Gate'}
               </h1>
             </div>
@@ -367,7 +367,7 @@ export const BookingEngineView: React.FC = () => {
             {/* Room Category Cards Grid */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#02070D]">
+                <h3 className="type-h2 text-2xl sm:text-3xl font-semibold text-[#02070D]">
                   {lang === 'sv' ? 'Välj Rumskategori' : 'Select Room Category'}
                 </h3>
                 <span className="text-xs text-[#25303A] font-medium">
@@ -411,7 +411,7 @@ export const BookingEngineView: React.FC = () => {
 
                       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                         <div>
-                          <h4 className="font-serif text-xl font-bold text-[#02070D] group-hover:text-[#BF8641] transition-colors">
+                          <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D] group-hover:text-[#BF8641] transition-colors">
                             {lang === 'sv' ? r.nameSv : r.name}
                           </h4>
                           <p className="text-xs text-[#25303A] mt-1 line-clamp-2 leading-relaxed">
@@ -424,7 +424,7 @@ export const BookingEngineView: React.FC = () => {
                             <span className="text-[10px] uppercase tracking-wider text-[#25303A]/70 block font-semibold">
                               {lang === 'sv' ? 'Från per natt' : 'From / night'}
                             </span>
-                            <span className="font-serif text-2xl font-bold text-[#02070D]">
+                            <span className="type-price text-2xl font-bold text-[#02070D]">
                               {formatSEK(nightlyWithMult, lang)}
                             </span>
                           </div>
@@ -475,7 +475,7 @@ export const BookingEngineView: React.FC = () => {
                     <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
                       {lang === 'sv' ? 'Pristyper & Flexibilitet' : 'Rate Plans & Flexibility'}
                     </span>
-                    <h3 className="font-serif text-2xl font-bold text-[#02070D]">
+                    <h3 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                       {lang === 'sv' ? 'Välj din avbokningspolicy' : 'Select Cancellation Policy'}
                     </h3>
                   </div>
@@ -503,7 +503,7 @@ export const BookingEngineView: React.FC = () => {
                               {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
                             </div>
                             <div className="space-y-1">
-                              <h4 className="font-serif text-lg font-bold text-[#02070D]">
+                              <h4 className="type-h4 text-base sm:text-lg font-semibold text-[#02070D]">
                                 {lang === 'sv' ? plan.nameSv : plan.name}
                               </h4>
                               <div className="flex items-center gap-2 text-xs text-[#25303A]/80 font-medium">
@@ -514,7 +514,7 @@ export const BookingEngineView: React.FC = () => {
                           </div>
 
                           <div className="text-left sm:text-right shrink-0 pl-8 sm:pl-0">
-                            <span className="font-serif text-xl font-bold text-[#02070D]">
+                            <span className="type-price text-xl font-bold text-[#02070D]">
                               {formatSEK(planTotal, lang)}
                             </span>
                             <span className="block text-[10px] text-[#25303A]/70">
@@ -533,7 +533,7 @@ export const BookingEngineView: React.FC = () => {
                     <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
                       {lang === 'sv' ? 'Hotelltillval & Bekvämligheter' : 'Enhance Your Stay'}
                     </span>
-                    <h3 className="font-serif text-2xl font-bold text-[#02070D]">
+                    <h3 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                       {lang === 'sv' ? 'Lägg till extra upplevelser' : 'Optional Add-ons'}
                     </h3>
                   </div>
@@ -553,7 +553,7 @@ export const BookingEngineView: React.FC = () => {
                         >
                           <div>
                             <div className="flex items-center justify-between mb-1">
-                              <h5 className="font-serif font-bold text-base text-[#02070D]">
+                              <h5 className="type-h4 font-semibold text-base text-[#02070D]">
                                 {lang === 'sv' ? extra.nameSv : extra.name}
                               </h5>
                               <span className="text-xs font-bold text-[#BF8641]">
@@ -609,7 +609,7 @@ export const BookingEngineView: React.FC = () => {
               {/* Right Col: Sticky Price Card */}
               <div className="lg:col-span-4">
                 <div className="sticky top-24 bg-[#EDE7DC] p-6 rounded-2xl border border-[#D3C8B9] space-y-4 shadow-lg">
-                  <h4 className="font-serif text-xl font-bold text-[#02070D] pb-3 border-b border-[#D3C8B9]">
+                  <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D] pb-3 border-b border-[#D3C8B9]">
                     {lang === 'sv' ? 'Prissammanställning' : 'Price Summary'}
                   </h4>
 
@@ -642,7 +642,7 @@ export const BookingEngineView: React.FC = () => {
                     <div className="pt-3 border-t border-[#D3C8B9] space-y-1">
                       <div className="flex justify-between text-base font-bold text-[#02070D]">
                         <span>{lang === 'sv' ? 'Totalt belopp:' : 'Total amount:'}</span>
-                        <span className="font-serif text-xl text-[#BF8641]">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
+                        <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
                       </div>
                       <div className="flex justify-between text-[11px] text-[#25303A]/70">
                         <span>{lang === 'sv' ? 'Varav hotellmoms (12%):' : 'Incl. room VAT (12%):'}</span>
@@ -675,7 +675,7 @@ export const BookingEngineView: React.FC = () => {
                   <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
                     {lang === 'sv' ? 'Gästinformation' : 'Guest Information'}
                   </span>
-                  <h3 className="font-serif text-2xl font-bold text-[#02070D]">
+                  <h3 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                     {lang === 'sv' ? 'Vem checkar in på hotellet?' : 'Primary Guest Details'}
                   </h3>
                 </div>
@@ -813,7 +813,7 @@ export const BookingEngineView: React.FC = () => {
               {/* Right Col: Summary */}
               <div className="lg:col-span-4">
                 <div className="sticky top-24 bg-[#EDE7DC] p-6 rounded-2xl border border-[#D3C8B9] space-y-4 shadow-lg">
-                  <h4 className="font-serif text-xl font-bold text-[#02070D] pb-3 border-b border-[#D3C8B9]">
+                  <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D] pb-3 border-b border-[#D3C8B9]">
                     {lang === 'sv' ? 'Prissammanställning' : 'Price Summary'}
                   </h4>
                   <div className="space-y-2 text-xs text-[#25303A]">
@@ -829,7 +829,7 @@ export const BookingEngineView: React.FC = () => {
                     ))}
                     <div className="pt-2 border-t border-[#D3C8B9] flex justify-between text-base font-bold text-[#02070D]">
                       <span>{lang === 'sv' ? 'Att betala online:' : 'Due online:'}</span>
-                      <span className="font-serif text-xl text-[#BF8641]">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
+                      <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
                     </div>
                   </div>
                 </div>
@@ -846,7 +846,7 @@ export const BookingEngineView: React.FC = () => {
               <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
                 {lang === 'sv' ? 'Säker Onlinebetalning' : 'Secure Online Payment'}
               </span>
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#02070D] mt-0.5">
+              <h3 className="type-h2 text-2xl sm:text-3xl font-semibold text-[#02070D] mt-0.5">
                 {lang === 'sv' ? 'Genomför betalning för din hotellvistelse' : 'Authorize Payment for Your Reservation'}
               </h3>
               <p className="text-xs text-[#25303A] mt-1">

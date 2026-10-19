@@ -74,7 +74,7 @@ export const HomeView: React.FC = () => {
               <span>10 min till Centralen</span>
             </div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-normal tracking-tight text-[#F8F5EF] leading-[1.08] text-balance">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#F8F5EF] leading-[1.12] text-balance">
               {lang === 'sv'
                 ? 'Välkomnande skandinavisk gästfrihet i Göteborg'
                 : 'Welcoming Scandinavian hospitality in Gothenburg'}
@@ -129,7 +129,7 @@ export const HomeView: React.FC = () => {
               <Droplets className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-slate-900">Inomhuspool & Bastu</h4>
+              <h4 className="text-base sm:text-lg font-semibold text-slate-900">Inomhuspool & Bastu</h4>
               <p className="text-xs text-slate-500 mt-0.5">Uppvärmd pool, bubbelpool och finsk bastu ingår</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export const HomeView: React.FC = () => {
               <Coffee className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-slate-900">Ekologisk Frukost</h4>
+              <h4 className="text-base sm:text-lg font-semibold text-slate-900">Ekologisk Frukost</h4>
               <p className="text-xs text-slate-500 mt-0.5">Generös skandinavisk buffé med specialkost</p>
             </div>
           </div>
@@ -149,7 +149,7 @@ export const HomeView: React.FC = () => {
               <Car className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-slate-900">Parkering & Elbil</h4>
+              <h4 className="text-base sm:text-lg font-semibold text-slate-900">Parkering & Elbil</h4>
               <p className="text-xs text-slate-500 mt-0.5">Privat parkering vid hotellet med typ 2-laddstolpar</p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export const HomeView: React.FC = () => {
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-serif text-lg font-bold text-slate-900">10 min till Centrum</h4>
+              <h4 className="text-base sm:text-lg font-semibold text-slate-900">10 min till Centrum</h4>
               <p className="text-xs text-slate-500 mt-0.5">Hållplats Balladgatan precis utanför entrén</p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export const HomeView: React.FC = () => {
               <ShieldCheck className="w-4 h-4 text-[#BF8641]" />
               <span>{lang === 'sv' ? 'Kandidatkatalog (Reference Source)' : 'Candidate Room Catalog'}</span>
             </div>
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D] tracking-wide mt-1">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D] mt-1">
               {lang === 'sv' ? 'Rumstyper & Boende' : 'Room Categories & Accommodations'}
             </h2>
             <p className="text-sm text-slate-600 mt-1 max-w-xl">
@@ -208,13 +208,13 @@ export const HomeView: React.FC = () => {
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-3 left-3 bg-[#0D1A26]/80 text-white text-[11px] px-2.5 py-1 rounded backdrop-blur-sm">
+                  <div className="absolute top-3 left-3 bg-[#0D1A26]/80 text-white text-[11px] px-2.5 py-1 rounded backdrop-blur-sm font-medium">
                     {room.bedConfigurationSv}
                   </div>
                 </div>
 
                 <div className="p-6 space-y-2">
-                  <h3 className="font-serif text-xl font-bold text-slate-900">
+                  <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
                     {lang === 'sv' ? room.nameSv : room.name}
                   </h3>
                   <p className="text-xs text-[#BF8641] font-medium">
@@ -236,8 +236,8 @@ export const HomeView: React.FC = () => {
 
               <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-neutral-100">
                 <div>
-                  <span className="text-[11px] text-slate-400 block">{lang === 'sv' ? 'Frånpris' : 'From'}</span>
-                  <span className="font-serif text-xl font-bold text-slate-900 tabular-nums">
+                  <span className="text-[11px] text-slate-400 block font-medium">{lang === 'sv' ? 'Frånpris' : 'From'}</span>
+                  <span className="text-xl font-bold text-slate-900 tabular-nums">
                     {formatSEK(room.startingPriceSEK || 1295, lang)}
                   </span>
                 </div>
@@ -274,7 +274,7 @@ export const HomeView: React.FC = () => {
                 <span>{lang === 'sv' ? 'Relax & Hälsa' : 'Indoor Relaxation'}</span>
               </div>
 
-              <h2 className="font-serif text-3xl lg:text-4xl text-[#F8F5EF] tracking-wide leading-tight">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#F8F5EF] leading-tight">
                 {lang === 'sv'
                   ? 'Uppvärmd inomhuspool, finsk bastu och bubbelpool'
                   : 'Heated indoor pool, Finnish sauna & hydrotherapy'}
@@ -347,7 +347,7 @@ export const HomeView: React.FC = () => {
               <span>{lang === 'sv' ? 'Frukost & Gastronomi' : 'Breakfast & Dining'}</span>
             </div>
 
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D] tracking-wide leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D] leading-tight">
               {lang === 'sv'
                 ? 'Skandinavisk ekologisk frukostbuffé och kvällsbistro'
                 : 'Scandinavian organic breakfast & evening bistro'}

@@ -69,7 +69,7 @@ export const FamilyFeaturesCard: React.FC = () => {
             <Users className="w-4 h-4 text-[#BF8641]" />
             <span>{lang === 'sv' ? 'Familjevänligt Hotell' : 'Family Travel & Comfort'}</span>
           </div>
-          <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D] tracking-wide">
+          <h2 className="type-h2 text-2xl sm:text-3xl lg:text-4xl text-[#02070D]">
             {lang === 'sv' ? 'Bekvämt boende för hela familjen' : 'Comfortable stays designed for families'}
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed">
@@ -102,7 +102,7 @@ export const FamilyFeaturesCard: React.FC = () => {
               <div className="w-9 h-9 rounded-lg bg-white border border-[#EDE7DC] text-[#BF8641] flex items-center justify-center shadow-xs">
                 <Icon className="w-4.5 h-4.5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-slate-900">
+              <h3 className="type-h3 text-base sm:text-lg font-semibold text-slate-900">
                 {lang === 'sv' ? perk.titleSv : perk.titleEn}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">

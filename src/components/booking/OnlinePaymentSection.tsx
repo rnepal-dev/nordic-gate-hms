@@ -165,7 +165,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
           <span className="text-[11px] uppercase tracking-wider text-[#D3C8B9] block">
             {lang === 'sv' ? 'Belopp att betala' : 'Amount to Pay'}
           </span>
-          <span className="font-serif text-2xl font-bold text-[#F2C777]">
+          <span className="type-price text-2xl font-bold text-[#F2C777]">
             {formatSEK(totalGrossSEK, lang)}
           </span>
           <span className="block text-[10px] text-[#D3C8B9]/80">
@@ -185,7 +185,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
 
       {/* 2. Payment Method Selector Tabs */}
       <div className="space-y-3">
-        <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D]">
+        <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D]">
           {lang === 'sv' ? 'Välj betalningsmetod online' : 'Select Online Payment Method'}
         </label>
         
@@ -205,7 +205,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               <CreditCard className={`w-5 h-5 ${paymentMethod === 'card' ? 'text-[#BF8641]' : 'text-[#25303A]'}`} />
               {paymentMethod === 'card' && <CheckCircle2 className="w-4 h-4 text-[#BF8641]" />}
             </div>
-            <div className="font-serif font-bold text-[#02070D] text-sm">
+            <div className="type-h4 font-semibold text-[#02070D] text-sm">
               {lang === 'sv' ? 'Kredit- / Betalkort' : 'Credit / Debit Card'}
             </div>
             <div className="text-[11px] text-[#25303A]/80 mt-0.5">
@@ -227,7 +227,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               <Smartphone className={`w-5 h-5 ${paymentMethod === 'swish' ? 'text-[#BF8641]' : 'text-[#25303A]'}`} />
               {paymentMethod === 'swish' && <CheckCircle2 className="w-4 h-4 text-[#BF8641]" />}
             </div>
-            <div className="font-serif font-bold text-[#02070D] text-sm">
+            <div className="type-h4 font-semibold text-[#02070D] text-sm">
               Swish
             </div>
             <div className="text-[11px] text-[#25303A]/80 mt-0.5">
@@ -249,7 +249,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               <Building2 className={`w-5 h-5 ${paymentMethod === 'klarna' ? 'text-[#BF8641]' : 'text-[#25303A]'}`} />
               {paymentMethod === 'klarna' && <CheckCircle2 className="w-4 h-4 text-[#BF8641]" />}
             </div>
-            <div className="font-serif font-bold text-[#02070D] text-sm">
+            <div className="type-h4 font-semibold text-[#02070D] text-sm">
               {lang === 'sv' ? 'Klarna / BankID' : 'Klarna Direct Bank'}
             </div>
             <div className="text-[11px] text-[#25303A]/80 mt-0.5">
@@ -271,7 +271,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               <Sparkles className={`w-5 h-5 ${paymentMethod === 'apple_pay' ? 'text-[#BF8641]' : 'text-[#25303A]'}`} />
               {paymentMethod === 'apple_pay' && <CheckCircle2 className="w-4 h-4 text-[#BF8641]" />}
             </div>
-            <div className="font-serif font-bold text-[#02070D] text-sm">
+            <div className="type-h4 font-semibold text-[#02070D] text-sm">
               Apple / Google Pay
             </div>
             <div className="text-[11px] text-[#25303A]/80 mt-0.5">
@@ -294,7 +294,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               <div className="absolute top-0 right-0 w-48 h-48 bg-[#F2C777]/10 rounded-full blur-2xl pointer-events-none" />
               
               <div className="flex items-center justify-between relative z-10">
-                <span className="font-serif text-lg tracking-wider text-[#F8F5EF] font-bold">
+                <span className="text-lg tracking-wider text-[#F8F5EF] font-bold">
                   Hotel Nordic Gate
                 </span>
                 <span className="text-[10px] tracking-[0.2em] uppercase text-[#F2C777] font-sans font-semibold">
@@ -311,7 +311,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               </div>
 
               {/* Number */}
-              <div className="font-mono text-lg tracking-widest text-white/95 my-2 relative z-10">
+              <div className="type-code text-lg tracking-widest text-white/95 my-2 relative z-10 font-bold">
                 {cardNumber || '•••• •••• •••• 4242'}
               </div>
 
@@ -321,7 +321,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
                   <span className="block text-[9px] uppercase tracking-wider text-[#D3C8B9]">
                     KORTINNEHAVARE
                   </span>
-                  <span className="font-medium tracking-wide uppercase text-white truncate max-w-[200px] block">
+                  <span className="font-semibold tracking-wide uppercase text-white truncate max-w-[200px] block">
                     {cardHolder || 'GÄSTENS NAMN'}
                   </span>
                 </div>
@@ -329,7 +329,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
                   <span className="block text-[9px] uppercase tracking-wider text-[#D3C8B9]">
                     GILTIG T.O.M.
                   </span>
-                  <span className="font-mono text-sm text-white">
+                  <span className="type-code text-sm text-white">
                     {cardExpiry || '11/28'}
                   </span>
                 </div>
@@ -340,7 +340,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
             <form onSubmit={handleSimulatePayment} className="space-y-4 max-w-xl mx-auto">
               
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
+                <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D] mb-1.5">
                   {lang === 'sv' ? 'Kortnummer *' : 'Card Number *'}
                 </label>
                 <div className="flex items-center bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-[#BF8641] focus-within:border-transparent">
@@ -352,7 +352,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
                     value={cardNumber}
                     onChange={(e) => handleCardNumberChange(e.target.value)}
                     placeholder="1234 5678 9012 3456"
-                    className="w-full bg-transparent text-sm font-mono font-semibold text-[#02070D] focus:outline-none"
+                    className="w-full bg-transparent text-sm type-code text-[#02070D] focus:outline-none"
                   />
                   <span className="text-[10px] uppercase font-bold text-[#25303A]/60 px-1.5 py-0.5 bg-white rounded border border-[#D3C8B9]">
                     3D SECURE
@@ -361,7 +361,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
+                <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D] mb-1.5">
                   {lang === 'sv' ? 'Kortinnehavarens namn *' : 'Cardholder Name *'}
                 </label>
                 <input
@@ -376,7 +376,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
+                  <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D] mb-1.5">
                     {lang === 'sv' ? 'Utgångsdatum (MM/ÅÅ) *' : 'Expiry Date (MM/YY) *'}
                   </label>
                   <input
@@ -386,12 +386,12 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
                     value={cardExpiry}
                     onChange={(e) => handleExpiryChange(e.target.value)}
                     placeholder="11/28"
-                    className="w-full bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3.5 py-2.5 text-sm font-mono font-semibold text-[#02070D] focus:ring-2 focus:ring-[#BF8641] focus:outline-none"
+                    className="w-full bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3.5 py-2.5 text-sm type-code text-[#02070D] focus:ring-2 focus:ring-[#BF8641] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
+                  <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D] mb-1.5">
                     {lang === 'sv' ? 'CVC / CVV *' : 'CVC / CVV *'}
                   </label>
                   <input
@@ -401,7 +401,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
                     value={cardCvc}
                     onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ''))}
                     placeholder="•••"
-                    className="w-full bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3.5 py-2.5 text-sm font-mono font-semibold text-[#02070D] focus:ring-2 focus:ring-[#BF8641] focus:outline-none"
+                    className="w-full bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3.5 py-2.5 text-sm type-code text-[#02070D] focus:ring-2 focus:ring-[#BF8641] focus:outline-none"
                   />
                 </div>
               </div>
@@ -427,7 +427,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
             </div>
 
             <div>
-              <h4 className="font-serif text-2xl font-bold text-[#02070D]">
+              <h4 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Betala med Swish' : 'Pay with Swish'}
               </h4>
               <p className="text-xs text-[#25303A] max-w-md mx-auto mt-1 leading-relaxed">
@@ -438,7 +438,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
             </div>
 
             <div className="p-4 bg-[#EDE7DC] rounded-xl border border-[#D3C8B9] text-left max-w-sm mx-auto space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D]">
+              <label className="type-label block text-xs font-semibold uppercase tracking-wider text-[#02070D]">
                 {lang === 'sv' ? 'Mobilnummer för Swish' : 'Mobile number for Swish'}
               </label>
               <div className="flex items-center bg-white rounded-xl border border-[#D3C8B9] px-3.5 py-2.5">
@@ -463,7 +463,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
         {paymentMethod === 'klarna' && (
           <div className="max-w-xl mx-auto space-y-6">
             <div className="text-center">
-              <h4 className="font-serif text-2xl font-bold text-[#02070D]">
+              <h4 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Direktbetalning via svensk bank & BankID' : 'Direct Bank Payment & BankID'}
               </h4>
               <p className="text-xs text-[#25303A] mt-1">
@@ -509,7 +509,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
             </div>
 
             <div>
-              <h4 className="font-serif text-2xl font-bold text-[#02070D]">
+              <h4 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
                 Apple Pay & Google Pay
               </h4>
               <p className="text-xs text-[#25303A] mt-1">
@@ -521,7 +521,7 @@ export const OnlinePaymentSection: React.FC<OnlinePaymentSectionProps> = ({
 
             <div className="p-4 bg-[#EDE7DC] rounded-xl border border-[#D3C8B9] text-xs text-[#25303A]">
               {lang === 'sv' ? 'Totalbelopp:' : 'Total amount:'}{' '}
-              <span className="font-bold font-serif text-base text-[#02070D]">
+              <span className="type-price text-base font-bold text-[#02070D]">
                 {formatSEK(totalGrossSEK, lang)}
               </span>
             </div>

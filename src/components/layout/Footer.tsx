@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           
           {/* Brand & Address */}
           <div className="space-y-4">
-            <h3 className="font-serif text-2xl text-[#F8F5EF] tracking-wide">
+            <h3 className="font-brand-logo text-2xl text-[#F8F5EF] tracking-wide">
               Hotel Nordic Gate
             </h3>
             <p className="text-xs tracking-[0.15em] uppercase text-[#F2C777]">

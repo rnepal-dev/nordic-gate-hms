@@ -36,10 +36,10 @@ export const Navbar: React.FC = () => {
           onClick={() => handleNavClick('/')}
           className="text-left group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2C777]"
         >
-          <span className="font-serif text-2xl lg:text-3xl tracking-wide text-[#F8F5EF] group-hover:text-[#F2C777] transition-colors whitespace-nowrap shrink-0">
+          <span className="font-brand-logo text-2xl lg:text-3xl tracking-wide text-[#F8F5EF] group-hover:text-[#F2C777] transition-colors whitespace-nowrap shrink-0">
             Hotel Nordic Gate
           </span>
-          <span className="block text-[10px] tracking-[0.2em] uppercase text-[#D3C8B9] font-sans -mt-0.5">
+          <span className="block text-[10px] tracking-[0.2em] uppercase text-[#D3C8B9] -mt-0.5">
             Göteborg · Scandinavian Hospitality
           </span>
         </button>

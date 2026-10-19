@@ -24,7 +24,7 @@ export const ReconciliationAuditModal: React.FC<ReconciliationAuditModalProps> =
               <FileSearch className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif text-xl tracking-wide text-[#F8F5EF]">
+              <h3 className="type-h3 text-lg sm:text-xl font-semibold tracking-tight text-[#F8F5EF]">
                 Milestone 1 — Property Content Reconciliation Audit
               </h3>
               <p className="text-xs text-[#D3C8B9]">
@@ -49,7 +49,7 @@ export const ReconciliationAuditModal: React.FC<ReconciliationAuditModalProps> =
               <strong>Brand Rule:</strong> Quality Hotel Winn listing serves as research reference; details are marked with explicit verification status.
             </span>
           </div>
-          <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-[#D3C8B9]">
+          <span className="type-code text-[11px] font-semibold bg-white px-2 py-0.5 rounded border border-[#D3C8B9]">
             7 Domains Audited
           </span>
         </div>

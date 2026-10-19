@@ -28,7 +28,7 @@ export const FaqAccordion: React.FC<FaqAccordionProps> = ({ faqs, title }) => {
         <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
           {lang === 'sv' ? 'Vanliga Frågor' : 'Questions & Answers'}
         </span>
-        <h3 className="font-serif text-2xl lg:text-3xl text-[#02070D] mt-1 font-bold">
+        <h3 className="type-h3 text-xl sm:text-2xl lg:text-3xl text-[#02070D] mt-1 font-semibold">
           {title || (lang === 'sv' ? 'Vanliga frågor inför din vistelse' : 'Frequently Asked Questions')}
         </h3>
       </div>
@@ -42,7 +42,7 @@ export const FaqAccordion: React.FC<FaqAccordionProps> = ({ faqs, title }) => {
               <button
                 type="button"
                 onClick={() => toggle(idx)}
-                className="w-full flex items-center justify-between text-left gap-4 font-serif text-base lg:text-lg font-bold text-[#02070D] hover:text-[#BF8641] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between text-left gap-4 text-base lg:text-lg font-semibold text-[#02070D] hover:text-[#BF8641] transition-colors cursor-pointer"
                 aria-expanded={isOpen}
               >
                 <span>{lang === 'sv' ? faq.qSv : faq.qEn}</span>

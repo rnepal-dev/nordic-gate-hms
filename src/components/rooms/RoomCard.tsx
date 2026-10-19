@@ -54,7 +54,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
             <p className="text-[11px] uppercase tracking-wider text-[#F2C777]">
               {lang === 'sv' ? 'Frånpris per natt' : 'From per night'}
             </p>
-            <p className="font-serif text-2xl font-bold tracking-tight text-[#F8F5EF] tabular-nums">
+            <p className="type-price text-2xl font-bold tracking-tight text-[#F8F5EF]">
               {formatSEK(room.startingPriceSEK, lang)}
             </p>
           </div>
@@ -64,7 +64,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
         <div className="p-6">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
-              <h3 className="font-serif text-xl lg:text-2xl text-[#02070D] tracking-wide">
+              <h3 className="type-h3 text-xl lg:text-2xl text-[#02070D] font-semibold">
                 {lang === 'sv' ? room.nameSv : room.name}
               </h3>
               <p className="text-xs text-[#BF8641] font-medium tracking-wide mt-0.5">

@@ -31,7 +31,7 @@ export const SpaView: React.FC = () => {
               <span aria-hidden="true" className="text-white/30">·</span>
               <span>Göteborg</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F8F5EF] tracking-wide leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F8F5EF] leading-tight">
               {lang === 'sv' ? 'Uppvärmd Inomhuspool, Bastu & Bubbelpool' : 'Heated Indoor Pool, Sauna & Hot Tub'}
             </h1>
             <p className="text-sm sm:text-base text-[#EDE7DC]/90 leading-relaxed font-light">
@@ -71,7 +71,7 @@ export const SpaView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
               {lang === 'sv' ? 'Faciliteter i Relaxen' : 'Relaxation Amenities'}
             </span>
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D]">
               {lang === 'sv' ? 'Återhämtning för kropp och sinne' : 'Restorative Wellness Amenities'}
             </h2>
             <p className="text-sm text-[#25303A]">
@@ -86,8 +86,8 @@ export const SpaView: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center">
                 <Droplets className="w-5 h-5" />
               </div>
-              <span className="font-serif text-3xl font-bold text-[#BF8641] block">28°C</span>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <span className="text-3xl font-bold text-[#BF8641] block tabular-nums">28°C</span>
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Uppvärmd Inomhuspool' : 'Heated Indoor Pool'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -101,8 +101,8 @@ export const SpaView: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <span className="font-serif text-3xl font-bold text-[#BF8641] block">80°C</span>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <span className="text-3xl font-bold text-[#BF8641] block tabular-nums">80°C</span>
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Finsk Torrbastu' : 'Finnish Dry Sauna'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -116,8 +116,8 @@ export const SpaView: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-[#0D1A26] text-[#F2C777] flex items-center justify-center">
                 <Waves className="w-5 h-5" />
               </div>
-              <span className="font-serif text-3xl font-bold text-[#BF8641] block">37°C</span>
-              <h3 className="font-serif text-xl font-bold text-[#02070D]">
+              <span className="text-3xl font-bold text-[#BF8641] block tabular-nums">37°C</span>
+              <h3 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Bubbelpool / Jacuzzi' : 'Hydrotherapy Hot Tub'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -135,7 +135,7 @@ export const SpaView: React.FC = () => {
               <div className="p-6 bg-[#F8F5EF] rounded-2xl border border-[#D3C8B9] space-y-3 shadow-xs">
                 <div className="flex items-center gap-2">
                   <Activity className="w-5 h-5 text-[#BF8641]" />
-                  <h4 className="font-serif text-xl font-bold text-[#02070D]">
+                  <h4 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                     {lang === 'sv' ? 'Partner-Gym (4 minuters promenad)' : 'Partner Fitness Gym (4 min walk)'}
                   </h4>
                 </div>
@@ -149,7 +149,7 @@ export const SpaView: React.FC = () => {
               <div className="p-6 bg-[#F8F5EF] rounded-2xl border border-[#D3C8B9] space-y-3 shadow-xs">
                 <div className="flex items-center gap-2">
                   <Compass className="w-5 h-5 text-[#BF8641]" />
-                  <h4 className="font-serif text-xl font-bold text-[#02070D]">
+                  <h4 className="text-lg sm:text-xl font-semibold text-[#02070D]">
                     {lang === 'sv' ? 'Motionsspår & Löprundor i Närheten' : 'Local Jogging & Walking Trails'}
                   </h4>
                 </div>
@@ -172,7 +172,7 @@ export const SpaView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#F2C777] font-semibold">
               {lang === 'sv' ? 'Gästguide' : 'Guest Etiquette'}
             </span>
-            <h3 className="font-serif text-2xl lg:text-3xl text-[#F8F5EF]">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[#F8F5EF]">
               {lang === 'sv' ? 'Bra att veta inför ditt besök i relaxen' : 'Good to Know for Your Visit'}
             </h3>
           </div>
@@ -200,7 +200,7 @@ export const SpaView: React.FC = () => {
 
       {/* 4. BOOK ROOM CTA */}
       <section className="max-w-2xl mx-auto px-6 text-center space-y-4">
-        <h3 className="font-serif text-3xl text-[#02070D]">
+        <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#02070D]">
           {lang === 'sv' ? 'Upplev avkoppling på Hotel Nordic Gate' : 'Enjoy Complimentary Wellness Access'}
         </h3>
         <p className="text-sm text-[#25303A]">

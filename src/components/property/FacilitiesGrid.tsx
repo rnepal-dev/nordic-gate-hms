@@ -84,7 +84,7 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
             </span>
           )}
           {title && (
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D] tracking-wide">
+            <h2 className="type-h2 text-2xl sm:text-3xl lg:text-4xl text-[#02070D]">
               {title}
             </h2>
           )}
@@ -124,7 +124,7 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
                 <IconComponent className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-serif text-lg font-bold text-slate-900 leading-tight">
+                <h3 className="type-h3 text-base sm:text-lg font-semibold text-slate-900 leading-tight">
                   {lang === 'sv' ? fac.nameSv : fac.nameEn}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">

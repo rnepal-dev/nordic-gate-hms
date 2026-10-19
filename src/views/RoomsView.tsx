@@ -52,7 +52,7 @@ export const RoomsView: React.FC = () => {
             <span>Göteborg</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F8F5EF] tracking-wide max-w-3xl leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F8F5EF] max-w-3xl leading-tight">
             {lang === 'sv' ? 'Rum & Sviter på Hotel Nordic Gate' : 'Rooms & Suites at Hotel Nordic Gate'}
           </h1>
 
@@ -202,7 +202,7 @@ export const RoomsView: React.FC = () => {
                   {/* Content */}
                   <div className="p-6 space-y-3">
                     <div className="space-y-1">
-                      <h3 className="font-serif text-2xl font-bold text-[#02070D] group-hover:text-[#BF8641] transition-colors">
+                      <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#02070D] group-hover:text-[#BF8641] transition-colors">
                         {lang === 'sv' ? room.nameSv : room.name}
                       </h3>
                       <p className="text-xs text-[#BF8641] font-semibold tracking-wide">
@@ -245,7 +245,7 @@ export const RoomsView: React.FC = () => {
                     <span className="text-[11px] text-[#25303A]/70 font-medium block">
                       {lang === 'sv' ? 'Frånpris per natt' : 'From per night'}
                     </span>
-                    <span className="font-serif text-2xl font-bold text-[#02070D] tabular-nums">
+                    <span className="text-2xl font-bold text-[#02070D] tabular-nums">
                       {formatSEK(room.startingPriceSEK || 1295, lang)}
                     </span>
                   </div>
@@ -279,7 +279,7 @@ export const RoomsView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
               {lang === 'sv' ? 'Nordic Gate Gäststandard' : 'The Nordic Gate Standard'}
             </span>
-            <h2 className="font-serif text-3xl lg:text-4xl text-[#02070D]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#02070D]">
               {lang === 'sv' ? 'Alltid inkluderat i ditt rumspris' : 'Always Included with Every Stay'}
             </h2>
             <p className="text-sm text-[#25303A]">
@@ -294,7 +294,7 @@ export const RoomsView: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 <Coffee className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#02070D]">
+              <h3 className="text-base sm:text-lg font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Ekologisk Frukostbuffé' : 'Organic Breakfast'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -308,7 +308,7 @@ export const RoomsView: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 <Droplets className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#02070D]">
+              <h3 className="text-base sm:text-lg font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Pool, Bastu & Jacuzzi' : 'Pool, Sauna & Jacuzzi'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -322,7 +322,7 @@ export const RoomsView: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 <Wifi className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#02070D]">
+              <h3 className="text-base sm:text-lg font-semibold text-[#02070D]">
                 {lang === 'sv' ? 'Höghastighets Wi-Fi' : 'High-Speed Wi-Fi'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -336,7 +336,7 @@ export const RoomsView: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-[#0D1A26] text-[#F2C777] flex items-center justify-center font-bold">
                 <Clock className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#02070D]">
+              <h3 className="text-base sm:text-lg font-semibold text-[#02070D]">
                 {lang === 'sv' ? '24h Bemannad Reception' : '24h Front Desk'}
               </h3>
               <p className="text-xs text-[#25303A] leading-relaxed">
@@ -356,7 +356,7 @@ export const RoomsView: React.FC = () => {
             <span className="text-xs uppercase tracking-[0.2em] text-[#F2C777] font-semibold">
               {lang === 'sv' ? 'Personlig Service' : 'Personal Assistance'}
             </span>
-            <h3 className="font-serif text-2xl lg:text-3xl text-[#F8F5EF]">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[#F8F5EF]">
               {lang === 'sv' ? 'Planerar du grupp-, familje- eller företagsbokning?' : 'Planning a Family, Group, or Corporate Stay?'}
             </h3>
             <p className="text-xs sm:text-sm text-[#D3C8B9] max-w-xl">

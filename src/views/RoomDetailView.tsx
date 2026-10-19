@@ -138,7 +138,7 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
                 <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold block">
                   {lang === 'sv' ? 'Hotellrum i Hisings Backa, Göteborg' : 'Guest Room in Gothenburg'}
                 </span>
-                <h1 className="font-serif text-3xl lg:text-4xl text-[#02070D] tracking-wide">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#02070D]">
                   {lang === 'sv' ? room.nameSv : room.name}
                 </h1>
                 <p className="text-sm lg:text-base text-[#BF8641] font-semibold tracking-wide">
@@ -184,7 +184,7 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
 
             {/* Description & Story */}
             <div className="bg-[#EDE7DC] p-6 lg:p-8 rounded-2xl border border-[#D3C8B9] space-y-4 text-[#25303A] leading-relaxed text-sm lg:text-base">
-              <h3 className="font-serif text-2xl text-[#02070D] font-bold">
+              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#02070D]">
                 {lang === 'sv' ? 'Om Rummet & Komforten' : 'About This Room & Comfort'}
               </h3>
               <p className="font-medium text-[#02070D]">
@@ -200,7 +200,7 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
             {/* Full Amenities Grid */}
             <div className="bg-white p-6 lg:p-8 rounded-2xl border border-[#EDE7DC] space-y-4 shadow-sm">
               <div className="flex items-center justify-between pb-3 border-b border-[#EDE7DC]">
-                <h3 className="font-serif text-2xl text-[#02070D] font-bold">
+                <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#02070D]">
                   {lang === 'sv' ? 'Bekvämligheter & Rumsdetaljer' : 'Amenities & Inclusions'}
                 </h3>
                 <span className="text-xs text-[#BF8641] font-semibold uppercase tracking-wider">
@@ -241,7 +241,7 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
                   {lang === 'sv' ? 'Bästa pris direkt hos hotellet' : 'Direct Booking Best Price'}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="font-serif text-3xl font-bold text-[#02070D] tabular-nums">
+                  <span className="text-3xl font-bold text-[#02070D] tabular-nums">
                     {formatSEK(calculatedPrice, lang)}
                   </span>
                   <span className="text-xs text-[#25303A]/70 font-medium">

@@ -36,7 +36,7 @@ export const LocationAndTransportCard: React.FC<LocationAndTransportCardProps> =
           <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-semibold">
             {lang === 'sv' ? 'Läge & Kommunikationer' : 'Location & Connectivity'}
           </span>
-          <h3 className="font-serif text-2xl lg:text-3xl text-[#02070D] mt-1 font-bold">
+          <h3 className="type-h3 text-xl sm:text-2xl lg:text-3xl text-[#02070D] mt-1 font-semibold">
             {lang === 'sv' ? 'Hitta till Hotel Nordic Gate' : 'Getting to Hotel Nordic Gate'}
           </h3>
         </div>
@@ -51,7 +51,7 @@ export const LocationAndTransportCard: React.FC<LocationAndTransportCardProps> =
         
         {/* Left 6 cols: Transit Connections */}
         <div className="lg:col-span-6 space-y-4">
-          <h4 className="font-serif text-xl font-bold text-[#02070D]">
+          <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D]">
             {lang === 'sv' ? 'Resvägar och kollektivtrafik' : 'Transit & Directions'}
           </h4>
 
@@ -66,7 +66,7 @@ export const LocationAndTransportCard: React.FC<LocationAndTransportCardProps> =
                     <span>{lang === 'sv' ? t.modeSv : t.modeEn}</span>
                   </div>
                   {t.estimatedTime && (
-                    <span className="font-mono text-[11px] font-bold text-[#BF8641] bg-white px-2.5 py-0.5 rounded-md border border-[#D3C8B9]">
+                    <span className="type-code text-[11px] font-semibold text-[#BF8641] bg-white px-2.5 py-0.5 rounded-md border border-[#D3C8B9]">
                       {t.estimatedTime}
                     </span>
                   )}
@@ -81,7 +81,7 @@ export const LocationAndTransportCard: React.FC<LocationAndTransportCardProps> =
 
         {/* Right 6 cols: Nearby Landmarks & Map preview */}
         <div className="lg:col-span-6 space-y-4">
-          <h4 className="font-serif text-xl font-bold text-[#02070D]">
+          <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D]">
             {lang === 'sv' ? 'Avstånd till sevärdheter i Göteborg' : 'Nearby Attractions & Distances'}
           </h4>
 
@@ -96,7 +96,7 @@ export const LocationAndTransportCard: React.FC<LocationAndTransportCardProps> =
                     {lang === 'sv' ? att.descriptionSv : att.descriptionEn}
                   </p>
                 </div>
-                <span className="font-mono text-xs font-bold text-[#BF8641] bg-white px-2 py-0.5 rounded border border-[#D3C8B9] tabular-nums shrink-0 ml-4">
+                <span className="type-code text-xs font-semibold text-[#BF8641] bg-white px-2 py-0.5 rounded border border-[#D3C8B9] shrink-0 ml-4">
                   {att.distanceKm} km
                 </span>
               </div>

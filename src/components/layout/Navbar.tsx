@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useHotel } from '../../context/HotelContext.tsx';
-import { Menu, X, Calendar, User, ShieldCheck } from 'lucide-react';
+import { Menu, X, Calendar, User, ShieldCheck, LogIn, LogOut, KeyRound } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { lang, setLang, currentRoute, navigate } = useHotel();
+  const { lang, setLang, currentRoute, navigate, currentUser, logout } = useHotel();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isHome = currentRoute === '/';
@@ -90,13 +90,48 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
+          {/* Auth State & Quick Portal Links */}
+          {currentUser ? (
+            <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/15">
+              <button
+                onClick={() => handleNavClick(currentUser.role === 'guest' ? '/guest' : '/app')}
+                className="flex items-center gap-1.5 text-xs text-[#F8F5EF] hover:text-[#F2C777] transition-colors cursor-pointer"
+                title={currentUser.roleTitle}
+              >
+                <User className="w-3.5 h-3.5 text-[#F2C777]" />
+                <span className="font-semibold">{currentUser.name.split(' ')[0]}</span>
+                <span className="text-[10px] bg-[#BF8641] text-white px-1.5 py-0.2 rounded font-medium">
+                  {currentUser.badge}
+                </span>
+              </button>
+              <button
+                onClick={logout}
+                className="text-[#D3C8B9] hover:text-rose-400 p-0.5 transition-colors cursor-pointer"
+                title={lang === 'sv' ? 'Logga ut' : 'Log Out'}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => handleNavClick('/login')}
+              className="hidden lg:flex items-center gap-1.5 text-xs text-[#D3C8B9] hover:text-[#F2C777] transition-colors py-2 px-3 border border-[#D3C8B9]/30 rounded cursor-pointer"
+              title={lang === 'sv' ? 'Logga in på portalen' : 'Sign in to portal'}
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#F2C777]" />
+              <span className="whitespace-nowrap font-medium">
+                {lang === 'sv' ? 'Logga In' : 'Sign In'}
+              </span>
+            </button>
+          )}
+
           {/* Guest Portal link */}
           <button
             onClick={() => handleNavClick('/guest')}
-            className="hidden lg:flex items-center gap-1.5 text-xs text-[#D3C8B9] hover:text-[#F2C777] transition-colors py-2 px-3 border border-[#D3C8B9]/30 rounded cursor-pointer"
+            className="hidden lg:flex items-center gap-1.5 text-xs text-[#D3C8B9] hover:text-[#F2C777] transition-colors py-2 px-2.5 rounded cursor-pointer"
             title="Gästportal / Self-Service"
           >
-            <User className="w-3.5 h-3.5 text-[#F2C777]" />
+            <User className="w-3.5 h-3.5 text-[#D3C8B9]" />
             <span className="whitespace-nowrap">
               {lang === 'sv' ? 'Mina Sidor' : 'My Stay'}
             </span>
@@ -166,6 +201,25 @@ export const Navbar: React.FC = () => {
               <ShieldCheck className="w-4 h-4 text-[#D3C8B9]" />
               {lang === 'sv' ? 'Hotellsystem (HMS Personal)' : 'Hotel Management (HMS)'}
             </button>
+            {currentUser ? (
+              <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs">
+                <span className="text-[#D3C8B9]">Inloggad som {currentUser.name} ({currentUser.badge})</span>
+                <button
+                  onClick={() => { setMobileMenuOpen(false); logout(); }}
+                  className="text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
+                >
+                  Logga ut
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleNavClick('/login')}
+                className="text-left text-base text-[#F2C777] hover:text-white py-1 cursor-pointer flex items-center gap-2"
+              >
+                <KeyRound className="w-4 h-4 text-[#F2C777]" />
+                {lang === 'sv' ? 'Logga In (Portalen)' : 'Sign In (Portal)'}
+              </button>
+            )}
           </nav>
 
           <div className="pt-4 border-t border-white/10 flex items-center justify-between">

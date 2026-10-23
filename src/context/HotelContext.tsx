@@ -5,7 +5,8 @@ import type {
   Reservation, 
   StaffRole, 
   StaffMember,
-  RoomTierId 
+  RoomTierId,
+  AuthUser 
 } from '../types/hotel.ts';
 import { 
   ROOM_CATEGORIES, 
@@ -42,6 +43,9 @@ interface HotelContextType {
   clearComparison: () => void;
   activeBookingRef: string | null;
   setActiveBookingRef: (ref: string | null) => void;
+  currentUser: AuthUser | null;
+  login: (user: AuthUser, destination?: string) => void;
+  logout: () => void;
   
   // Actions
   addReservation: (res: Reservation) => void;
@@ -74,6 +78,14 @@ export function HotelProvider({ children }: { children: React.ReactNode }) {
   const [comparisonRoomIds, setComparisonRoomIds] = useState<RoomTierId[]>(['heritage-suite', 'deluxe-canal']);
   const [activeStaffRole, setActiveStaffRole] = useState<StaffRole>('manager');
   const [activeBookingRef, setActiveBookingRef] = useState<string | null>('SH-88492');
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('hotel_nordic_gate_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Sync browser popstate
   useEffect(() => {
@@ -88,6 +100,35 @@ export function HotelProvider({ children }: { children: React.ReactNode }) {
     window.history.pushState(params || {}, '', route);
     setCurrentRoute(route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const login = (user: AuthUser, destination?: string) => {
+    setCurrentUser(user);
+    try {
+      sessionStorage.setItem('hotel_nordic_gate_user', JSON.stringify(user));
+    } catch {
+      // ignore
+    }
+    if (user.role === 'front_desk') {
+      setActiveStaffRole('receptionist');
+    } else if (user.role === 'admin') {
+      setActiveStaffRole('owner');
+    } else if (user.role === 'guest' && user.bookingRef) {
+      setActiveBookingRef(user.bookingRef);
+    }
+    if (destination) {
+      navigate(destination);
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      sessionStorage.removeItem('hotel_nordic_gate_user');
+    } catch {
+      // ignore
+    }
+    navigate('/login');
   };
 
   const toggleCompareRoom = (id: RoomTierId) => {
@@ -233,6 +274,9 @@ export function HotelProvider({ children }: { children: React.ReactNode }) {
     clearComparison,
     activeBookingRef,
     setActiveBookingRef,
+    currentUser,
+    login,
+    logout,
     addReservation,
     cancelReservation,
     checkInReservation,
@@ -247,7 +291,8 @@ export function HotelProvider({ children }: { children: React.ReactNode }) {
     reservations, 
     comparisonRoomIds, 
     activeStaffRole, 
-    activeBookingRef
+    activeBookingRef,
+    currentUser
   ]);
 
   return (

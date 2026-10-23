@@ -132,3 +132,18 @@ export interface StaffMember {
   shift: string;
   active: boolean;
 }
+
+export type LoginRole = 'guest' | 'front_desk' | 'admin';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: LoginRole;
+  roleTitle: string;
+  badge: string;
+  bookingRef?: string;
+  roomNumber?: string;
+  department?: string;
+  lastLogin?: string;
+}

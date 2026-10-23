@@ -37,10 +37,16 @@ export const StaffDashboardView: React.FC = () => {
     checkOutReservation,
     updateRoomHousekeeping,
     toggleMaintenance,
-    navigate 
+    navigate,
+    currentUser,
+    logout 
   } = useHotel();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'rooms' | 'frontdesk' | 'housekeeping' | 'reservations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'rooms' | 'frontdesk' | 'housekeeping' | 'reservations'>(() => {
+    if (currentUser?.role === 'front_desk') return 'frontdesk';
+    return 'overview';
+  });
+  const [welcomeDismissed, setWelcomeDismissed] = useState<boolean>(false);
   const [selectedFloor, setSelectedFloor] = useState<number>(0);
   const [cleanlinessFilter, setCleanlinessFilter] = useState<string>('all');
   const [reservationSearch, setReservationSearch] = useState<string>('');
@@ -92,7 +98,7 @@ export const StaffDashboardView: React.FC = () => {
             </button>
             <div className="h-4 w-px bg-white/20" />
             <div>
-              <span className="font-serif text-lg tracking-wide text-[#F8F5EF]">
+              <span className="type-h3 text-lg tracking-wide text-[#F8F5EF] font-semibold">
                 Hotel Nordic Gate HMS
               </span>
               <span className="hidden sm:inline-block text-[10px] tracking-wider text-[#F2C777] ml-2 uppercase">
@@ -101,8 +107,8 @@ export const StaffDashboardView: React.FC = () => {
             </div>
           </div>
 
-          {/* Role selector & Date */}
-          <div className="flex items-center gap-4 text-xs">
+          {/* Role selector, User profile & Date */}
+          <div className="flex items-center gap-3 text-xs">
             <div className="hidden md:flex items-center gap-1.5 text-stone-300">
               <Calendar className="w-3.5 h-3.5 text-[#F2C777]" />
               <span className="tabular-nums">Lördag 17 Okt 2026</span>
@@ -124,6 +130,35 @@ export const StaffDashboardView: React.FC = () => {
                 <option value="accountant" className="bg-[#0D1A26]">Ekonom / Redovisning</option>
               </select>
             </div>
+
+            {/* Authenticated Staff Pill or Login Link */}
+            {currentUser ? (
+              <div className="flex items-center gap-2 bg-[#02070D] px-3 py-1.5 rounded-lg border border-[#BF8641]/40">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-semibold text-[#F8F5EF] hidden lg:inline">{currentUser.name}</span>
+                  <span className="text-[10px] bg-[#BF8641] text-white px-1.5 py-0.2 rounded font-medium">
+                    {currentUser.badge}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-stone-400 hover:text-rose-400 transition-colors ml-1 cursor-pointer flex items-center gap-1 text-[11px]"
+                  title="Logga ut från HMS"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Logga ut</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="flex items-center gap-1.5 bg-[#BF8641] hover:bg-[#8C5F27] text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5 rotate-180" />
+                <span>Logga in</span>
+              </button>
+            )}
           </div>
 
         </div>

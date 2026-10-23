@@ -12,6 +12,10 @@ import { BookingEngineView } from './views/BookingEngineView.tsx';
 import { GuestPortalView } from './views/GuestPortalView.tsx';
 import { StaffDashboardView } from './views/StaffDashboardView.tsx';
 import { FaqView } from './views/FaqView.tsx';
+import { LoginView } from './views/LoginView.tsx';
+import { ForgotPasswordView } from './views/ForgotPasswordView.tsx';
+import { ResetPasswordView } from './views/ResetPasswordView.tsx';
+import { UnauthorizedView } from './views/UnauthorizedView.tsx';
 
 function AppContent() {
   const { currentRoute } = useHotel();
@@ -20,6 +24,18 @@ function AppContent() {
   const renderCurrentView = () => {
     if (currentRoute === '/') {
       return <HomeView />;
+    }
+    if (currentRoute === '/login' || currentRoute === '/auth') {
+      return <LoginView />;
+    }
+    if (currentRoute === '/forgot-password') {
+      return <ForgotPasswordView />;
+    }
+    if (currentRoute === '/reset-password') {
+      return <ResetPasswordView />;
+    }
+    if (currentRoute === '/unauthorized' || currentRoute === '/access-denied') {
+      return <UnauthorizedView />;
     }
     if (currentRoute === '/rooms') {
       return <RoomsView />;
@@ -55,14 +71,23 @@ function AppContent() {
   };
 
   const isHmsView = currentRoute.startsWith('/app');
+  const isDedicatedAuthView = 
+    currentRoute === '/login' || 
+    currentRoute === '/auth' || 
+    currentRoute === '/forgot-password' || 
+    currentRoute === '/reset-password' || 
+    currentRoute === '/unauthorized' || 
+    currentRoute === '/access-denied';
+
+  const hidePublicChrome = isHmsView || isDedicatedAuthView;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F5EF] text-[#25303A] antialiased selection:bg-[#F2C777]/30 selection:text-[#02070D]">
-      {!isHmsView && <Navbar />}
+      {!hidePublicChrome && <Navbar />}
       <main className="flex-1">
         {renderCurrentView()}
       </main>
-      {!isHmsView && <Footer />}
+      {!hidePublicChrome && <Footer />}
     </div>
   );
 }

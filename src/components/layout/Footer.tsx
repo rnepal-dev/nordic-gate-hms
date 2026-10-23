@@ -124,12 +124,18 @@ export const Footer: React.FC = () => {
                 <span className="text-[#BF8641]">·</span>
                 <span>{lang === 'sv' ? 'Klassisk svensk frukostbuffé' : 'Artisanal Swedish Breakfast'}</span>
               </li>
-              <li className="pt-2">
+              <li className="pt-2 flex flex-col gap-1 text-left">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-xs text-[#F2C777] hover:text-white underline underline-offset-4 cursor-pointer text-left"
+                >
+                  {lang === 'sv' ? 'Portalinloggning (Gäst & Personal)' : 'Portal Login (Guest & Staff)'}
+                </button>
                 <button
                   onClick={() => navigate('/app')}
-                  className="text-xs text-[#BF8641] hover:text-[#F2C777] underline underline-offset-4 cursor-pointer"
+                  className="text-xs text-[#BF8641] hover:text-[#F2C777] underline underline-offset-4 cursor-pointer text-left"
                 >
-                  {lang === 'sv' ? 'Personalinloggning (HMS Dashboard)' : 'Staff Management Console (HMS)'}
+                  {lang === 'sv' ? 'HMS Hotellsystem (Personal)' : 'HMS Staff Console'}
                 </button>
               </li>
             </ul>

@@ -6,6 +6,8 @@ export const HOTEL_IMAGES = {
   deluxeCanal: '/src/assets/images/room_deluxe_canal_1792203252977.jpg',
   diningRestaurant: '/src/assets/images/dining_nordic_restaurant_1792203253819.jpg',
   spaWellness: '/src/assets/images/spa_botanical_wellness_1792203253493.jpg',
+  barLounge: '/src/assets/images/bar_cocktail_lounge_1792941914818.jpg',
+  barDrinks: '/src/assets/images/bar_cocktail_selection_1792941915110.jpg',
 };
 
 export const ROOM_CATEGORIES: RoomCategory[] = [

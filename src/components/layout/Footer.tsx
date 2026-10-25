@@ -85,6 +85,14 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <button
+                  onClick={() => navigate('/bar')}
+                  className="hover:text-[#F2C777] transition-colors cursor-pointer"
+                >
+                  {lang === 'sv' ? 'Loungebar & Dryck' : 'Bar & Drinks'}
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => navigate('/spa')}
                   className="hover:text-[#F2C777] transition-colors cursor-pointer"
                 >

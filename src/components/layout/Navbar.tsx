@@ -18,6 +18,7 @@ export const Navbar: React.FC = () => {
     { href: '/rooms', labelSv: 'Rum & Kategorier', labelEn: 'Rooms & Categories' },
     { href: '/faq', labelSv: 'Faciliteter & Info', labelEn: 'Facilities & Info' },
     { href: '/dining', labelSv: 'Frukost & Restaurang', labelEn: 'Breakfast & Dining' },
+    { href: '/bar', labelSv: 'Bar & Dryck', labelEn: 'Bar & Drinks' },
     { href: '/spa', labelSv: 'Pool & Bastu', labelEn: 'Pool & Sauna' },
     { href: '/our-story', labelSv: 'Om Hotellet', labelEn: 'About Hotel' },
   ];
@@ -29,23 +30,23 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full transition-colors duration-200 border-b border-[#0D1A26]/10 bg-[#0D1A26]/95 backdrop-blur-md text-[#F8F5EF]">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6 lg:gap-8">
         
         {/* Zone 1: Single Brand Wordmark in Display Serif */}
         <button
           onClick={() => handleNavClick('/')}
-          className="text-left group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2C777]"
+          className="text-left group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F2C777] shrink-0"
         >
-          <span className="font-brand-logo text-2xl lg:text-3xl tracking-wide text-[#F8F5EF] group-hover:text-[#F2C777] transition-colors whitespace-nowrap shrink-0">
+          <span className="font-brand-logo text-xl sm:text-2xl lg:text-3xl tracking-wide text-[#F8F5EF] group-hover:text-[#F2C777] transition-colors whitespace-nowrap block">
             Hotel Nordic Gate
           </span>
-          <span className="block text-[10px] tracking-[0.2em] uppercase text-[#D3C8B9] -mt-0.5">
+          <span className="block text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-[#D3C8B9] -mt-0.5">
             Göteborg · Scandinavian Hospitality
           </span>
         </button>
 
-        {/* Zone 2: 4-5 Concise Single-Line Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+        {/* Zone 2: Concise Single-Line Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-7 text-xs xl:text-sm font-medium tracking-wide">
           {navLinks.map((link) => {
             const isActive = currentRoute === link.href;
             return (
@@ -150,7 +151,7 @@ export const Navbar: React.FC = () => {
           {/* Primary Action Button */}
           <button
             onClick={() => handleNavClick('/booking')}
-            className="flex items-center gap-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs lg:text-sm font-semibold tracking-wider uppercase px-5 py-2.5 rounded transition-all shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
+            className="hidden sm:flex items-center gap-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs lg:text-sm font-semibold tracking-wider uppercase px-4 lg:px-5 py-2.5 rounded transition-all shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-[#F2C777]" />
             <span>{lang === 'sv' ? 'Boka Vistelse' : 'Book Your Stay'}</span>
@@ -159,7 +160,7 @@ export const Navbar: React.FC = () => {
           {/* Mobile hamburger toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-[#F8F5EF] hover:text-[#F2C777] transition-colors cursor-pointer"
+            className="lg:hidden p-2 text-[#F8F5EF] hover:text-[#F2C777] transition-colors cursor-pointer"
             aria-label={mobileMenuOpen ? 'Stäng meny' : 'Öppna meny'}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -170,7 +171,15 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#0D1A26] bg-[#0D1A26] px-6 py-6 space-y-4">
+        <div className="lg:hidden border-t border-[#0D1A26] bg-[#0D1A26] px-6 py-6 space-y-4">
+          <button
+            onClick={() => handleNavClick('/booking')}
+            className="w-full flex items-center justify-center gap-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-semibold tracking-wider uppercase px-5 py-3 rounded transition-all shadow-sm cursor-pointer mb-2"
+          >
+            <Calendar className="w-4 h-4 text-[#F2C777]" />
+            <span>{lang === 'sv' ? 'Boka Vistelse' : 'Book Your Stay'}</span>
+          </button>
+
           <nav className="flex flex-col space-y-3">
             <button
               onClick={() => handleNavClick('/')}

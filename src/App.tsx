@@ -48,7 +48,10 @@ function AppContent() {
       return <FaqView />;
     }
     if (currentRoute === '/dining' || currentRoute === '/restaurant') {
-      return <DiningView />;
+      return <DiningView initialTab="all" />;
+    }
+    if (currentRoute === '/bar' || currentRoute === '/drinks') {
+      return <DiningView initialTab="bar" />;
     }
     if (currentRoute === '/spa' || currentRoute === '/wellness') {
       return <SpaView />;

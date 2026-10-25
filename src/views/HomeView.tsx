@@ -31,6 +31,7 @@ import {
   Calendar,
   Waves,
   Coffee,
+  Wine,
   Car,
   Wifi,
   Users,
@@ -370,12 +371,19 @@ export const HomeView: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 onClick={() => navigate('/dining')}
                 className="px-6 py-3 border border-[#0D1A26] text-[#0D1A26] hover:bg-[#0D1A26] hover:text-white text-xs font-semibold uppercase tracking-wider rounded transition-colors cursor-pointer"
               >
-                {lang === 'sv' ? 'Se frukosttider & menyer' : 'Explore Dining & Hours'}
+                {lang === 'sv' ? 'Se frukost & bistro' : 'Explore Dining & Hours'}
+              </button>
+              <button
+                onClick={() => navigate('/bar')}
+                className="px-6 py-3 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-semibold uppercase tracking-wider rounded transition-colors cursor-pointer flex items-center gap-2 shadow-xs"
+              >
+                <Wine className="w-3.5 h-3.5 text-[#F2C777]" />
+                <span>{lang === 'sv' ? 'Utforska Bar & Dryck' : 'Explore Bar & Drinks'}</span>
               </button>
             </div>
           </div>

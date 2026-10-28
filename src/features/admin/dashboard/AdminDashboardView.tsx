@@ -18,21 +18,24 @@ import {
 import { useHotel } from '../../../context/HotelContext';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { Button } from '../../../components/ui/Button';
-import { ADMIN_DASHBOARD_METRICS, loadAdminFaqs } from '../../../data/adminMockData';
+import { loadAdminFaqs, loadAdminFacilities, loadAdminGallery } from '../../../data/adminMockData';
 
 export const AdminDashboardView: React.FC = () => {
   const { navigate } = useHotel();
   const faqs = loadAdminFaqs();
+  const facilities = loadAdminFacilities();
+  const gallery = loadAdminGallery();
   const publishedFaqsCount = faqs.filter((f) => f.status === 'published').length;
+  const availableFacilitiesCount = facilities.filter((f) => f.is_available).length;
 
   const statCards = [
     {
-      title: 'Rooms & Suites',
-      count: 5,
-      subtitle: '5 active categories',
-      icon: <BedDouble className="w-5 h-5 text-[#BF8641]" />,
-      route: '/admin/rooms',
-      badge: 'All Live',
+      title: 'Facilities & Amenities',
+      count: facilities.length,
+      subtitle: `${availableFacilitiesCount} active on property`,
+      icon: <Sparkles className="w-5 h-5 text-[#BF8641]" />,
+      route: '/admin/facilities',
+      badge: 'Live',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },
     {
@@ -41,7 +44,7 @@ export const AdminDashboardView: React.FC = () => {
       subtitle: `${publishedFaqsCount} published live`,
       icon: <HelpCircle className="w-5 h-5 text-[#BF8641]" />,
       route: '/admin/faqs',
-      badge: `${faqs.length - publishedFaqsCount} Drafts`,
+      badge: `${faqs.length} Total`,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
     },
     {
@@ -54,9 +57,9 @@ export const AdminDashboardView: React.FC = () => {
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },
     {
-      title: 'Media & Photography',
-      count: 38,
-      subtitle: 'High-res Gothenburg assets',
+      title: 'Hotel Gallery',
+      count: gallery.length,
+      subtitle: `${gallery.filter((g) => g.is_featured).length} featured photos`,
       icon: <ImageIcon className="w-5 h-5 text-[#BF8641]" />,
       route: '/admin/gallery',
       badge: 'Optimized',

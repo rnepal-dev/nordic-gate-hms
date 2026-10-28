@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { AdminFaq, FaqCategory, FAQ_CATEGORIES } from './faqTypes';
-import { StatusType } from '../../../components/ui/StatusBadge';
+import {
+  AdminFaq,
+  ApiFaqPayload,
+  FAQ_CATEGORIES,
+  toApiFaqPayload,
+  validateFaqFields,
+} from './faqTypes';
 import { TextField } from '../../../components/ui/TextField';
 import { Textarea } from '../../../components/ui/Textarea';
 import { Select } from '../../../components/ui/Select';
-import { Button } from '../../../components/ui/Button';
-import { LocaleTabs, AdminLocale } from '../../../components/admin/LocaleTabs';
+import { FormActions } from '../../../components/ui/FormActions';
+import { Tag, Hash, Calendar } from 'lucide-react';
 
 export interface FaqFormProps {
   initialData?: AdminFaq | null;
-  onSubmit: (data: Omit<AdminFaq, 'id' | 'updatedAt'> & { id?: string }) => void;
+  onSubmit: (payload: ApiFaqPayload & { id?: number }) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -20,205 +25,197 @@ export const FaqForm: React.FC<FaqFormProps> = ({
   onCancel,
   isLoading = false,
 }) => {
-  const [activeLocale, setActiveLocale] = useState<AdminLocale>('sv');
-
-  const [category, setCategory] = useState<FaqCategory>(
-    initialData?.category || 'general'
-  );
-  const [questionSv, setQuestionSv] = useState(initialData?.questionSv || '');
-  const [questionEn, setQuestionEn] = useState(initialData?.questionEn || '');
-  const [answerSv, setAnswerSv] = useState(initialData?.answerSv || '');
-  const [answerEn, setAnswerEn] = useState(initialData?.answerEn || '');
+  const [question, setQuestion] = useState(initialData?.question || '');
+  const [answer, setAnswer] = useState(initialData?.answer || '');
+  const [category, setCategory] = useState(initialData?.category || 'general');
   const [displayOrder, setDisplayOrder] = useState<number>(
-    initialData?.displayOrder ?? 1
+    initialData?.display_order ?? 1
   );
-  const [status, setStatus] = useState<StatusType>(initialData?.status || 'published');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialData) {
-      setCategory(initialData.category);
-      setQuestionSv(initialData.questionSv);
-      setQuestionEn(initialData.questionEn);
-      setAnswerSv(initialData.answerSv);
-      setAnswerEn(initialData.answerEn);
-      setDisplayOrder(initialData.displayOrder);
-      setStatus(initialData.status);
+      setQuestion(initialData.question);
+      setAnswer(initialData.answer);
+      setCategory(initialData.category || 'general');
+      setDisplayOrder(initialData.display_order ?? 1);
+    } else {
+      setQuestion('');
+      setAnswer('');
+      setCategory('general');
+      setDisplayOrder(1);
     }
   }, [initialData]);
 
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!questionSv.trim()) {
-      newErrors.questionSv = 'Swedish question is required';
-    }
-    if (!answerSv.trim()) {
-      newErrors.answerSv = 'Swedish answer is required';
-    }
-    if (!questionEn.trim()) {
-      newErrors.questionEn = 'English question is required';
-    }
-    if (!answerEn.trim()) {
-      newErrors.answerEn = 'English answer is required';
-    }
-    if (isNaN(displayOrder) || displayOrder < 1) {
-      newErrors.displayOrder = 'Display order must be 1 or higher';
-    }
-
-    setErrors(newErrors);
-
-    // If active locale has no errors but the other does, switch to that locale to help the user
-    if (activeLocale === 'sv' && (newErrors.questionEn || newErrors.answerEn) && !newErrors.questionSv && !newErrors.answerSv) {
-      setActiveLocale('en');
-    } else if (activeLocale === 'en' && (newErrors.questionSv || newErrors.answerSv) && !newErrors.questionEn && !newErrors.answerEn) {
-      setActiveLocale('sv');
-    }
-
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    const fieldErrors = validateFaqFields({
+      question,
+      answer,
+      category,
+      display_order: displayOrder,
+    });
+
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    const cleanPayload = toApiFaqPayload({
+      question,
+      answer,
+      category,
+      display_order: displayOrder,
+    });
 
     onSubmit({
-      id: initialData?.id,
-      category,
-      questionSv: questionSv.trim(),
-      questionEn: questionEn.trim(),
-      answerSv: answerSv.trim(),
-      answerEn: answerEn.trim(),
-      displayOrder: Number(displayOrder),
-      status,
-      author: initialData?.author || 'Hotel Administrator',
+      ...cleanPayload,
+      ...(initialData?.id ? { id: initialData.id } : {}),
     });
   };
 
+  const questionCharCount = question.length;
+  const isQuestionOverLimit = questionCharCount > 300;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Language Switcher for Bilingual Fields */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#EDE7DC]">
-        <div>
-          <span className="text-xs font-bold text-[#0D1A26] block">
-            Content Language
-          </span>
-          <span className="text-[11px] text-[#5D6B78]">
-            Edit Swedish (primary) and English website copy
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Read-Only Server Identifiers Header (when editing) */}
+      {initialData?.id && (
+        <div className="p-3 bg-[#F8F5EF] border border-[#D3C8B9] rounded-xl flex items-center justify-between text-xs text-[#5D6B78]">
+          <div className="flex items-center gap-2">
+            <Hash className="w-4 h-4 text-[#BF8641]" />
+            <span className="font-semibold text-[#0D1A26]">
+              FAQ ID #{initialData.id}
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EDE7DC] text-[#25303A] uppercase tracking-wider">
+              Read-Only
+            </span>
+          </div>
+          {initialData.updated_at && (
+            <div className="flex items-center gap-1 text-[11px] text-stone-500">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Last updated: {initialData.updated_at}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Question Field with strict 300 char counter */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-xs font-semibold text-[#0D1A26] uppercase tracking-wider">
+            Question <span className="text-rose-500">*</span>
+          </label>
+          <span
+            className={`text-[11px] font-mono ${
+              isQuestionOverLimit
+                ? 'text-rose-600 font-bold'
+                : questionCharCount > 250
+                ? 'text-amber-600'
+                : 'text-stone-400'
+            }`}
+          >
+            {questionCharCount}/300 chars
           </span>
         </div>
-        <LocaleTabs currentLocale={activeLocale} onChange={setActiveLocale} />
-      </div>
-
-      {/* Multilingual Question & Answer inputs */}
-      <div className="space-y-4">
-        {activeLocale === 'sv' ? (
-          <>
-            <TextField
-              label="Fråga (Svenska)"
-              required
-              value={questionSv}
-              onChange={(e) => setQuestionSv(e.target.value)}
-              placeholder="t.ex. Vilka tider gäller för incheckning?"
-              error={errors.questionSv}
-              helperText="Frågan som visas för svenska besökare"
-            />
-            <Textarea
-              label="Svar (Svenska)"
-              required
-              rows={4}
-              value={answerSv}
-              onChange={(e) => setAnswerSv(e.target.value)}
-              placeholder="Beskriv svaret tydligt och elegant..."
-              error={errors.answerSv}
-              helperText="Fullständigt svar i FAQ-sektionen"
-            />
-          </>
+        <textarea
+          rows={3}
+          value={question}
+          onChange={(e) => {
+            setQuestion(e.target.value);
+            if (errors.question) setErrors((prev) => ({ ...prev, question: '' }));
+          }}
+          placeholder="e.g. What are the check-in and check-out times at Hotel Nordic Gate?"
+          maxLength={350} // slight buffer to show error message if user pastes >300
+          className={`w-full p-3 text-xs sm:text-sm bg-white border rounded-xl text-[#0D1A26] placeholder-stone-400 focus:outline-none focus:border-[#BF8641] transition-colors resize-y ${
+            errors.question || isQuestionOverLimit
+              ? 'border-rose-400 ring-1 ring-rose-300'
+              : 'border-[#D3C8B9]'
+          }`}
+        />
+        {errors.question ? (
+          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.question}</p>
         ) : (
-          <>
-            <TextField
-              label="Question (English)"
-              required
-              value={questionEn}
-              onChange={(e) => setQuestionEn(e.target.value)}
-              placeholder="e.g. What are the check-in and check-out times?"
-              error={errors.questionEn}
-              helperText="The question displayed for international visitors"
-            />
-            <Textarea
-              label="Answer (English)"
-              required
-              rows={4}
-              value={answerEn}
-              onChange={(e) => setAnswerEn(e.target.value)}
-              placeholder="Provide a clear, hospitality-focused response..."
-              error={errors.answerEn}
-              helperText="Full answer in the website FAQ section"
-            />
-          </>
+          <p className="mt-1 text-[11px] text-[#5D6B78]">
+            Clear, guest-friendly question (maximum 300 characters).
+          </p>
         )}
       </div>
 
-      {/* Meta & Categorization section */}
-      <div className="pt-4 border-t border-[#EDE7DC] space-y-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">
-          Settings & Taxonomy
-        </h4>
+      {/* Answer Field */}
+      <div>
+        <label className="block text-xs font-semibold text-[#0D1A26] uppercase tracking-wider mb-1.5">
+          Answer <span className="text-rose-500">*</span>
+        </label>
+        <textarea
+          rows={5}
+          value={answer}
+          onChange={(e) => {
+            setAnswer(e.target.value);
+            if (errors.answer) setErrors((prev) => ({ ...prev, answer: '' }));
+          }}
+          placeholder="e.g. Check-in is from 15:00 to 23:00, and check-out is from 06:00 to 11:00..."
+          className={`w-full p-3 text-xs sm:text-sm bg-white border rounded-xl text-[#0D1A26] placeholder-stone-400 focus:outline-none focus:border-[#BF8641] transition-colors resize-y ${
+            errors.answer
+              ? 'border-rose-400 ring-1 ring-rose-300'
+              : 'border-[#D3C8B9]'
+          }`}
+        />
+        {errors.answer ? (
+          <p className="mt-1 text-xs text-rose-600 font-medium">{errors.answer}</p>
+        ) : (
+          <p className="mt-1 text-[11px] text-[#5D6B78]">
+            Comprehensive response published to the guest portal and website FAQ section.
+          </p>
+        )}
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Category & Display Order Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+        <div>
           <Select
             label="Category"
-            required
             value={category}
-            onChange={(e) => setCategory(e.target.value as FaqCategory)}
-            options={FAQ_CATEGORIES.map((cat) => ({
-              value: cat.value,
-              label: `${cat.labelEn} (${cat.labelSv})`,
-            }))}
-          />
-
-          <Select
-            label="Publication Status"
-            required
-            value={status}
-            onChange={(e) => setStatus(e.target.value as StatusType)}
+            onChange={(e) => setCategory(e.target.value)}
             options={[
-              { value: 'published', label: 'Published (Live)' },
-              { value: 'draft', label: 'Draft (Hidden)' },
-              { value: 'archived', label: 'Archived' },
+              ...FAQ_CATEGORIES.map((c) => ({
+                value: c.value,
+                label: c.label,
+              })),
             ]}
           />
+          {errors.category && (
+            <p className="mt-1 text-xs text-rose-600">{errors.category}</p>
+          )}
         </div>
 
-        <div className="max-w-xs">
+        <div>
           <TextField
-            label="Display Sort Order"
+            label="Display Order"
             type="number"
-            min={1}
+            min={0}
+            max={2147483647}
             value={displayOrder.toString()}
-            onChange={(e) => setDisplayOrder(parseInt(e.target.value, 10) || 1)}
-            error={errors.displayOrder}
-            helperText="Lower numbers appear first on the FAQ page"
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              setDisplayOrder(isNaN(val) ? 0 : val);
+            }}
+            error={errors.display_order}
+            helperText="0 to 2,147,483,647 (lower numbers display first)"
           />
         </div>
       </div>
 
-      {/* Form Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#EDE7DC]">
-        <Button
-          type="button"
-          variant="outline"
-          size="md"
-          onClick={onCancel}
-          disabled={isLoading}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" variant="primary" size="md" isLoading={isLoading}>
-          {initialData ? 'Save Changes' : 'Create FAQ'}
-        </Button>
-      </div>
+      {/* Reusable FormActions */}
+      <FormActions
+        onCancel={onCancel}
+        isSubmitting={isLoading}
+        submitLabel={initialData?.id ? 'Save FAQ' : 'Create FAQ'}
+        submitDisabled={isQuestionOverLimit}
+      />
     </form>
   );
 };

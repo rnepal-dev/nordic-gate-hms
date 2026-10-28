@@ -1,50 +1,89 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { INITIAL_ADMIN_FAQS } from '../../../data/adminMockData.ts';
-import { AdminFaq } from './faqTypes.ts';
+import {
+  validateFaqFields,
+  toApiFaqPayload,
+} from './faqTypes.ts';
 
-test('INITIAL_ADMIN_FAQS has valid bilingual records', () => {
+test('INITIAL_ADMIN_FAQS has valid integer IDs and conforming schema', () => {
   assert.ok(INITIAL_ADMIN_FAQS.length >= 8, 'Should have at least 8 initial FAQs');
-  
+
   for (const faq of INITIAL_ADMIN_FAQS) {
-    assert.ok(faq.id.startsWith('faq-'), `FAQ ID should be formatted: ${faq.id}`);
-    assert.ok(faq.questionEn.length > 5, `English question should be non-empty: ${faq.id}`);
-    assert.ok(faq.questionSv.length > 5, `Swedish question should be non-empty: ${faq.id}`);
-    assert.ok(faq.answerEn.length > 10, `English answer should be non-empty: ${faq.id}`);
-    assert.ok(faq.answerSv.length > 10, `Swedish answer should be non-empty: ${faq.id}`);
-    assert.ok(faq.displayOrder >= 1, `Display order should be positive: ${faq.id}`);
-    assert.ok(['published', 'draft', 'archived'].includes(faq.status), `Status must be valid: ${faq.status}`);
+    assert.strictEqual(typeof faq.id, 'number', `FAQ ID should be integer: ${faq.id}`);
+    assert.ok(faq.question.length > 5, `Question should be non-empty: ${faq.id}`);
+    assert.ok(faq.answer.length > 10, `Answer should be non-empty: ${faq.id}`);
+    assert.ok(faq.question.length <= 300, `Question must be <= 300 chars: ${faq.id}`);
+    assert.strictEqual(typeof faq.display_order, 'number');
+    assert.ok(faq.display_order >= 0 && faq.display_order <= 2147483647, 'display_order within integer bounds');
   }
 });
 
-test('Search filters FAQs across English and Swedish fields', () => {
-  const query = 'kontantfritt'; // Cash-free in Swedish
-  const matchedSv = INITIAL_ADMIN_FAQS.filter(
-    (f) => f.questionSv.toLowerCase().includes(query) || f.answerSv.toLowerCase().includes(query)
-  );
-  assert.ok(matchedSv.length > 0, 'Should find cash-free FAQ with Swedish query');
+test('validateFaqFields enforces 300 max chars on question and required answer', () => {
+  const emptyErrors = validateFaqFields({
+    question: '',
+    answer: '',
+    display_order: 1,
+  });
+  assert.ok(emptyErrors.question, 'Should reject empty question');
+  assert.ok(emptyErrors.answer, 'Should reject empty answer');
 
-  const queryEn = 'parking';
-  const matchedEn = INITIAL_ADMIN_FAQS.filter(
-    (f) => f.questionEn.toLowerCase().includes(queryEn) || f.answerEn.toLowerCase().includes(queryEn)
-  );
-  assert.ok(matchedEn.length > 0, 'Should find parking FAQ with English query');
+  const tooLongQuestion = 'Q'.repeat(301);
+  const lengthErrors = validateFaqFields({
+    question: tooLongQuestion,
+    answer: 'Valid answer',
+    display_order: 1,
+  });
+  assert.ok(lengthErrors.question, 'Should reject question exceeding 300 characters');
+
+  const validErrors = validateFaqFields({
+    question: 'Are there irons in the room?',
+    answer: 'Yes, irons are available upon request.',
+    category: 'general',
+    display_order: 5,
+  });
+  assert.strictEqual(Object.keys(validErrors).length, 0, 'Should accept valid question and answer');
 });
 
-test('Category and status filtering returns correct subsets', () => {
-  const diningFaqs = INITIAL_ADMIN_FAQS.filter((f) => f.category === 'dining');
-  assert.ok(diningFaqs.length >= 1, 'Should have at least 1 dining FAQ');
+test('validateFaqFields enforces integer display_order range (0 to 2147483647)', () => {
+  const negativeErrors = validateFaqFields({
+    question: 'Test question?',
+    answer: 'Test answer',
+    display_order: -1,
+  });
+  assert.ok(negativeErrors.display_order, 'Should reject negative display_order');
 
-  const publishedFaqs = INITIAL_ADMIN_FAQS.filter((f) => f.status === 'published');
-  assert.ok(publishedFaqs.length > 0, 'Should have published FAQs');
+  const tooBigErrors = validateFaqFields({
+    question: 'Test question?',
+    answer: 'Test answer',
+    display_order: 2147483648,
+  });
+  assert.ok(tooBigErrors.display_order, 'Should reject display_order > 2147483647');
 
-  const draftFaqs = INITIAL_ADMIN_FAQS.filter((f) => f.status === 'draft');
-  assert.ok(draftFaqs.length > 0, 'Should have draft FAQs for testing drafts');
+  const decimalErrors = validateFaqFields({
+    question: 'Test question?',
+    answer: 'Test answer',
+    display_order: 2.5,
+  });
+  assert.ok(decimalErrors.display_order, 'Should reject non-integer display_order');
 });
 
-test('Display order sorting maintains ordered sequence', () => {
-  const sorted = [...INITIAL_ADMIN_FAQS].sort((a, b) => a.displayOrder - b.displayOrder);
-  for (let i = 0; i < sorted.length - 1; i++) {
-    assert.ok(sorted[i].displayOrder <= sorted[i + 1].displayOrder, 'FAQs must be sorted ascending by displayOrder');
-  }
+test('toApiFaqPayload outputs clean schema object without unsupported properties', () => {
+  const rawInput = {
+    question: '  Where is the indoor pool located?  ',
+    answer: '  On the ground floor relax wing.  ',
+    category: '  wellness  ',
+    display_order: 3,
+    status: 'published', // unsupported API field
+    questionSv: 'Var ligger poolen?', // unsupported API field
+  };
+
+  const payload = toApiFaqPayload(rawInput as any);
+
+  assert.strictEqual(payload.question, 'Where is the indoor pool located?');
+  assert.strictEqual(payload.answer, 'On the ground floor relax wing.');
+  assert.strictEqual(payload.category, 'wellness');
+  assert.strictEqual(payload.display_order, 3);
+  assert.strictEqual((payload as any).status, undefined, 'Must not send status');
+  assert.strictEqual((payload as any).questionSv, undefined, 'Must not send questionSv');
 });

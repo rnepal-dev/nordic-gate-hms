@@ -4,17 +4,19 @@ import {
   Edit2,
   Trash2,
   HelpCircle,
-  CheckCircle,
-  Eye,
   FileQuestion,
+  Hash,
 } from 'lucide-react';
-import { AdminFaq, FaqCategory, FAQ_CATEGORIES } from './faqTypes';
+import {
+  AdminFaq,
+  ApiFaqPayload,
+  FAQ_CATEGORIES,
+} from './faqTypes';
 import { loadAdminFaqs, saveAdminFaqs } from '../../../data/adminMockData';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { TableToolbar } from '../../../components/admin/TableToolbar';
 import { AdminDataTable, Column } from '../../../components/admin/AdminDataTable';
 import { Pagination } from '../../../components/admin/Pagination';
-import { StatusBadge, StatusType } from '../../../components/ui/StatusBadge';
 import { Button } from '../../../components/ui/Button';
 import { Drawer } from '../../../components/ui/Drawer';
 import { DeleteConfirmation } from '../../../components/admin/DeleteConfirmation';
@@ -27,8 +29,7 @@ export const FaqListView: React.FC = () => {
   const [faqs, setFaqs] = useState<AdminFaq[]>(() => loadAdminFaqs());
   const [searchValue, setSearchValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [sortColumn, setSortColumn] = useState<string>('displayOrder');
+  const [sortColumn, setSortColumn] = useState<string>('display_order');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -40,41 +41,32 @@ export const FaqListView: React.FC = () => {
 
   // Delete dialog state
   const [deleteTarget, setDeleteTarget] = useState<AdminFaq | null>(null);
-  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
 
-  // Sync state helper
   const updateFaqs = (newFaqs: AdminFaq[]) => {
     setFaqs(newFaqs);
     saveAdminFaqs(newFaqs);
   };
 
-  // Filter & Search
+  // Search & Filters
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
-      // Search in EN question/answer and SV question/answer
       if (searchValue.trim()) {
         const query = searchValue.toLowerCase();
         const matchesQuery =
-          faq.questionEn.toLowerCase().includes(query) ||
-          faq.questionSv.toLowerCase().includes(query) ||
-          faq.answerEn.toLowerCase().includes(query) ||
-          faq.answerSv.toLowerCase().includes(query);
+          faq.question.toLowerCase().includes(query) ||
+          faq.answer.toLowerCase().includes(query) ||
+          (faq.questionSv && faq.questionSv.toLowerCase().includes(query)) ||
+          (faq.answerSv && faq.answerSv.toLowerCase().includes(query));
         if (!matchesQuery) return false;
       }
 
-      // Category filter
       if (categoryFilter !== 'all' && faq.category !== categoryFilter) {
-        return false;
-      }
-
-      // Status filter
-      if (statusFilter !== 'all' && faq.status !== statusFilter) {
         return false;
       }
 
       return true;
     });
-  }, [faqs, searchValue, categoryFilter, statusFilter]);
+  }, [faqs, searchValue, categoryFilter]);
 
   // Sorting
   const sortedFaqs = useMemo(() => {
@@ -115,31 +107,11 @@ export const FaqListView: React.FC = () => {
   const handleResetFilters = () => {
     setSearchValue('');
     setCategoryFilter('all');
-    setStatusFilter('all');
     setCurrentPage(1);
   };
 
-  const hasActiveFilters =
-    Boolean(searchValue) || categoryFilter !== 'all' || statusFilter !== 'all';
+  const hasActiveFilters = Boolean(searchValue) || categoryFilter !== 'all';
 
-  // Selection handlers
-  const handleSelectRow = (id: string, selected: boolean) => {
-    setSelectedIds((prev) =>
-      selected ? [...prev, id] : prev.filter((item) => item !== id)
-    );
-  };
-
-  const handleSelectAll = (selected: boolean) => {
-    if (selected) {
-      const allIdsOnPage = paginatedFaqs.map((f) => f.id);
-      setSelectedIds((prev) => Array.from(new Set([...prev, ...allIdsOnPage])));
-    } else {
-      const allIdsOnPage = new Set(paginatedFaqs.map((f) => f.id));
-      setSelectedIds((prev) => prev.filter((id) => !allIdsOnPage.has(id)));
-    }
-  };
-
-  // CRUD Handlers
   const handleOpenCreate = () => {
     setEditingFaq(null);
     setDrawerOpen(true);
@@ -150,19 +122,20 @@ export const FaqListView: React.FC = () => {
     setDrawerOpen(true);
   };
 
-  const handleFormSubmit = (
-    data: Omit<AdminFaq, 'id' | 'updatedAt'> & { id?: string }
-  ) => {
+  const handleFormSubmit = (payload: ApiFaqPayload & { id?: number }) => {
     const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
 
-    if (data.id) {
-      // Update
+    if (payload.id) {
+      // Update existing FAQ
       const updated = faqs.map((f) =>
-        f.id === data.id
+        f.id === payload.id
           ? {
               ...f,
-              ...data,
-              updatedAt: now,
+              question: payload.question,
+              answer: payload.answer,
+              category: payload.category,
+              display_order: payload.display_order,
+              updated_at: now,
             }
           : f
       );
@@ -170,20 +143,25 @@ export const FaqListView: React.FC = () => {
       showToast({
         type: 'success',
         title: 'FAQ Updated',
-        message: 'The FAQ item and bilingual translations were saved successfully.',
+        message: `FAQ #${payload.id} successfully updated with schema-aligned payload.`,
       });
     } else {
-      // Create
+      // Create new FAQ
+      const nextId = faqs.reduce((max, item) => Math.max(max, item.id), 0) + 1;
       const newFaq: AdminFaq = {
-        ...data,
-        id: `faq-${Date.now()}`,
-        updatedAt: now,
+        id: nextId,
+        question: payload.question,
+        answer: payload.answer,
+        category: payload.category,
+        display_order: payload.display_order,
+        created_at: now,
+        updated_at: now,
       };
       updateFaqs([newFaq, ...faqs]);
       showToast({
         type: 'success',
         title: 'FAQ Created',
-        message: 'New FAQ has been added to the Hotel Nordic Gate directory.',
+        message: `New FAQ #${nextId} created successfully.`,
       });
     }
 
@@ -195,78 +173,55 @@ export const FaqListView: React.FC = () => {
     if (!deleteTarget) return;
     const updated = faqs.filter((f) => f.id !== deleteTarget.id);
     updateFaqs(updated);
-    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
     showToast({
       type: 'info',
-      title: 'FAQ Deleted',
-      message: `"${deleteTarget.questionEn}" was removed.`,
+      title: 'FAQ Removed',
+      message: `FAQ #${deleteTarget.id} was deleted.`,
     });
     setDeleteTarget(null);
   };
 
-  const handleBulkPublish = () => {
-    const updated = faqs.map((f) =>
-      selectedIds.includes(f.id) ? { ...f, status: 'published' as StatusType } : f
-    );
-    updateFaqs(updated);
-    showToast({
-      type: 'success',
-      title: 'Bulk Update',
-      message: `${selectedIds.length} FAQs marked as Published.`,
-    });
-    setSelectedIds([]);
-  };
-
-  const handleBulkDeleteConfirm = () => {
-    const updated = faqs.filter((f) => !selectedIds.includes(f.id));
-    updateFaqs(updated);
-    showToast({
-      type: 'info',
-      title: 'Bulk Delete',
-      message: `${selectedIds.length} FAQ items deleted.`,
-    });
-    setSelectedIds([]);
-    setBulkDeleteConfirmOpen(false);
-  };
-
-  const getCategoryLabel = (cat: FaqCategory) => {
+  const getCategoryLabel = (cat?: string) => {
     const found = FAQ_CATEGORIES.find((c) => c.value === cat);
-    return found ? found.labelEn : cat;
+    return found ? found.label : cat || 'General';
   };
 
-  // Columns definition
   const columns: Column<AdminFaq>[] = [
     {
-      key: 'displayOrder',
+      key: 'id',
+      header: 'ID',
+      sortable: true,
+      className: 'w-16 font-mono text-stone-400 text-center',
+      headerClassName: 'w-16 text-center',
+      render: (faq) => (
+        <span className="text-xs text-stone-400 font-mono">#{faq.id}</span>
+      ),
+    },
+    {
+      key: 'display_order',
       header: 'Order',
       sortable: true,
-      className: 'w-16 font-mono text-stone-500 text-center',
+      className: 'w-16 font-mono text-center',
       headerClassName: 'w-16 text-center',
       render: (faq) => (
         <span className="inline-block px-2 py-0.5 rounded bg-[#EDE7DC]/70 font-semibold text-xs text-[#0D1A26]">
-          {faq.displayOrder}
+          {faq.display_order}
         </span>
       ),
     },
     {
-      key: 'questionEn',
-      header: 'Question (English / Swedish)',
+      key: 'question',
+      header: 'Question & Answer Preview',
       sortable: true,
-      className: 'min-w-[280px] max-w-md',
+      className: 'min-w-[320px] max-w-lg',
       render: (faq) => (
         <div className="space-y-1">
-          <div className="font-semibold text-[#0D1A26] flex items-center gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-[#BF8641] px-1 py-0.2 bg-amber-50 rounded">
-              EN
-            </span>
-            <span>{faq.questionEn}</span>
-          </div>
-          <div className="text-xs text-[#5D6B78] flex items-center gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-stone-500 px-1 py-0.2 bg-stone-100 rounded">
-              SV
-            </span>
-            <span className="truncate">{faq.questionSv}</span>
-          </div>
+          <p className="font-semibold text-[#0D1A26] line-clamp-2">
+            {faq.question}
+          </p>
+          <p className="text-xs text-[#5D6B78] line-clamp-2 leading-relaxed">
+            {faq.answer}
+          </p>
         </div>
       ),
     },
@@ -282,25 +237,11 @@ export const FaqListView: React.FC = () => {
       ),
     },
     {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      className: 'whitespace-nowrap',
-      render: (faq) => <StatusBadge status={faq.status} />,
-    },
-    {
-      key: 'updatedAt',
+      key: 'updated_at',
       header: 'Last Modified',
       sortable: true,
       className: 'whitespace-nowrap text-stone-500 text-xs',
-      render: (faq) => (
-        <div>
-          <div>{faq.updatedAt}</div>
-          {faq.author && (
-            <div className="text-[10px] text-stone-400">by {faq.author}</div>
-          )}
-        </div>
-      ),
+      render: (faq) => <span>{faq.updated_at || faq.updatedAt || '—'}</span>,
     },
     {
       key: 'actions',
@@ -308,7 +249,10 @@ export const FaqListView: React.FC = () => {
       className: 'text-right whitespace-nowrap w-24',
       headerClassName: 'text-right w-24',
       render: (faq) => (
-        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="flex items-center justify-end gap-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             type="button"
             onClick={() => handleOpenEdit(faq)}
@@ -332,10 +276,9 @@ export const FaqListView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header with Action */}
       <AdminPageHeader
         title="FAQs Management"
-        subtitle="Manage frequently asked questions, answers, and multilingual Swedish/English content for hotel guests."
+        subtitle="Manage frequently asked questions, answers, display order, and categorization."
         badge={
           <span className="text-xs font-bold px-2.5 py-1 bg-[#BF8641]/15 text-[#BF8641] rounded-full">
             {faqs.length} Total
@@ -353,47 +296,7 @@ export const FaqListView: React.FC = () => {
         }
       />
 
-      {/* Bulk Action Bar (when rows are selected) */}
-      {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between p-3.5 bg-[#0D1A26] text-white rounded-xl shadow-md animate-in fade-in duration-150">
-          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-            <span className="w-6 h-6 rounded-full bg-[#BF8641] flex items-center justify-center text-xs font-bold">
-              {selectedIds.length}
-            </span>
-            <span>Items Selected</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleBulkPublish}
-              className="!border-white/30 !text-white hover:!bg-white/10"
-              leftIcon={<CheckCircle className="w-3.5 h-3.5 text-emerald-400" />}
-            >
-              Publish Selected
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setBulkDeleteConfirmOpen(true)}
-              leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-            >
-              Delete Selected
-            </Button>
-            <button
-              type="button"
-              onClick={() => setSelectedIds([])}
-              className="text-xs text-stone-300 hover:text-white px-2 py-1 cursor-pointer"
-            >
-              Deselect
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Table Container Card */}
       <div className="bg-white rounded-xl border border-[#EDE7DC] shadow-xs overflow-hidden">
-        {/* Table Toolbar */}
         <TableToolbar
           searchValue={searchValue}
           onSearchChange={(val) => {
@@ -407,7 +310,7 @@ export const FaqListView: React.FC = () => {
             options: [
               { label: 'All Categories', value: 'all' },
               ...FAQ_CATEGORIES.map((c) => ({
-                label: c.labelEn,
+                label: c.label,
                 value: c.value,
               })),
             ],
@@ -416,46 +319,27 @@ export const FaqListView: React.FC = () => {
               setCurrentPage(1);
             },
           }}
-          statusFilter={{
-            value: statusFilter,
-            options: [
-              { label: 'All Statuses', value: 'all' },
-              { label: 'Published', value: 'published' },
-              { label: 'Draft', value: 'draft' },
-              { label: 'Archived', value: 'archived' },
-            ],
-            onChange: (val) => {
-              setStatusFilter(val);
-              setCurrentPage(1);
-            },
-          }}
           hasActiveFilters={hasActiveFilters}
           onResetFilters={handleResetFilters}
         />
 
-        {/* Generic Typed Data Table */}
         <AdminDataTable<AdminFaq>
           columns={columns}
           data={paginatedFaqs}
-          keyExtractor={(faq) => faq.id}
+          keyExtractor={(faq) => faq.id.toString()}
           sortColumn={sortColumn}
           sortDirection={sortDirection}
           onSort={handleSort}
-          selectable={true}
-          selectedIds={selectedIds}
-          onSelectRow={handleSelectRow}
-          onSelectAll={handleSelectAll}
           emptyState={{
             title: hasActiveFilters ? 'No matching FAQs' : 'No FAQs created yet',
             description: hasActiveFilters
               ? 'Try adjusting your search terms or filters.'
-              : 'Create your first FAQ item to help guests learn about Hotel Nordic Gate.',
+              : 'Create your first FAQ item for Hotel Nordic Gate guests.',
             actionLabel: hasActiveFilters ? 'Clear Filters' : 'Add First FAQ',
             onAction: hasActiveFilters ? handleResetFilters : handleOpenCreate,
           }}
         />
 
-        {/* Pagination */}
         {totalItems > 0 && (
           <Pagination
             currentPage={currentPage}
@@ -471,19 +355,14 @@ export const FaqListView: React.FC = () => {
         )}
       </div>
 
-      {/* Create / Edit Drawer */}
       <Drawer
         isOpen={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
           setEditingFaq(null);
         }}
-        title={editingFaq ? 'Edit FAQ Item' : 'Add New FAQ Item'}
-        description={
-          editingFaq
-            ? 'Update the questions, answers, and visibility for this FAQ.'
-            : 'Fill in both Swedish and English translations for the website.'
-        }
+        title={editingFaq ? `Edit FAQ #${editingFaq.id}` : 'Add New FAQ Item'}
+        description="Configure guest question, answer, category, and display order."
         size="lg"
       >
         <FaqForm
@@ -496,25 +375,13 @@ export const FaqListView: React.FC = () => {
         />
       </Drawer>
 
-      {/* Single Item Delete Confirmation */}
       {deleteTarget && (
         <DeleteConfirmation
           isOpen={true}
           onClose={() => setDeleteTarget(null)}
           onConfirm={handleDeleteConfirm}
-          itemName={deleteTarget.questionEn}
+          itemName={deleteTarget.question}
           itemType="FAQ"
-        />
-      )}
-
-      {/* Bulk Delete Confirmation */}
-      {bulkDeleteConfirmOpen && (
-        <DeleteConfirmation
-          isOpen={true}
-          onClose={() => setBulkDeleteConfirmOpen(false)}
-          onConfirm={handleBulkDeleteConfirm}
-          itemName={`${selectedIds.length} selected FAQ items`}
-          itemType="FAQs"
         />
       )}
     </div>

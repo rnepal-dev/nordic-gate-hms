@@ -17,10 +17,11 @@ import { ForgotPasswordView } from './views/ForgotPasswordView.tsx';
 import { ResetPasswordView } from './views/ResetPasswordView.tsx';
 import { UnauthorizedView } from './views/UnauthorizedView.tsx';
 
-// Admin CMS Components
 import { AdminLayout } from './components/admin/AdminLayout.tsx';
 import { AdminDashboardView } from './features/admin/dashboard/AdminDashboardView.tsx';
 import { FaqListView } from './features/admin/faqs/FaqListView.tsx';
+import { FacilityListView } from './features/admin/facilities/FacilityListView.tsx';
+import { GalleryListView } from './features/admin/gallery/GalleryListView.tsx';
 import { ModulePlaceholderView } from './features/admin/common/ModulePlaceholderView.tsx';
 import type { BreadcrumbItem } from './components/admin/AdminBreadcrumbs.tsx';
 
@@ -47,9 +48,9 @@ function AppContent() {
     } else if (currentRoute === '/admin/bar') {
       breadcrumbs = [{ label: 'Bar & Drinks', route: '/admin/bar' }];
       childView = <ModulePlaceholderView moduleKey="bar" />;
-    } else if (currentRoute === '/admin/facilities') {
+    } else if (currentRoute === '/admin/facilities' || currentRoute.startsWith('/admin/facilities/')) {
       breadcrumbs = [{ label: 'Facilities & Amenities', route: '/admin/facilities' }];
-      childView = <ModulePlaceholderView moduleKey="facilities" />;
+      childView = <FacilityListView />;
     } else if (currentRoute === '/admin/testimonials') {
       breadcrumbs = [{ label: 'Testimonials & Reviews', route: '/admin/testimonials' }];
       childView = <ModulePlaceholderView moduleKey="testimonials" />;
@@ -59,9 +60,9 @@ function AppContent() {
     } else if (currentRoute === '/admin/offers') {
       breadcrumbs = [{ label: 'Offers & Packages', route: '/admin/offers' }];
       childView = <ModulePlaceholderView moduleKey="offers" />;
-    } else if (currentRoute === '/admin/gallery') {
-      breadcrumbs = [{ label: 'Gallery & Media', route: '/admin/gallery' }];
-      childView = <ModulePlaceholderView moduleKey="gallery" />;
+    } else if (currentRoute === '/admin/gallery' || currentRoute.startsWith('/admin/gallery/')) {
+      breadcrumbs = [{ label: 'Hotel Gallery', route: '/admin/gallery' }];
+      childView = <GalleryListView />;
     } else if (currentRoute === '/admin/about') {
       breadcrumbs = [{ label: 'About Hotel', route: '/admin/about' }];
       childView = <ModulePlaceholderView moduleKey="about" />;

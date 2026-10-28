@@ -17,11 +17,77 @@ import { ForgotPasswordView } from './views/ForgotPasswordView.tsx';
 import { ResetPasswordView } from './views/ResetPasswordView.tsx';
 import { UnauthorizedView } from './views/UnauthorizedView.tsx';
 
+// Admin CMS Components
+import { AdminLayout } from './components/admin/AdminLayout.tsx';
+import { AdminDashboardView } from './features/admin/dashboard/AdminDashboardView.tsx';
+import { FaqListView } from './features/admin/faqs/FaqListView.tsx';
+import { ModulePlaceholderView } from './features/admin/common/ModulePlaceholderView.tsx';
+import type { BreadcrumbItem } from './components/admin/AdminBreadcrumbs.tsx';
+
 function AppContent() {
   const { currentRoute } = useHotel();
 
+  // Helper to determine breadcrumbs and admin view
+  const renderAdminView = () => {
+    let breadcrumbs: BreadcrumbItem[] = [];
+    let childView: React.ReactNode = null;
+
+    if (currentRoute === '/admin' || currentRoute === '/admin/') {
+      breadcrumbs = [{ label: 'Dashboard' }];
+      childView = <AdminDashboardView />;
+    } else if (currentRoute === '/admin/faqs' || currentRoute.startsWith('/admin/faqs/')) {
+      breadcrumbs = [{ label: 'FAQs Management', route: '/admin/faqs' }];
+      childView = <FaqListView />;
+    } else if (currentRoute === '/admin/rooms') {
+      breadcrumbs = [{ label: 'Rooms & Suites', route: '/admin/rooms' }];
+      childView = <ModulePlaceholderView moduleKey="rooms" />;
+    } else if (currentRoute === '/admin/dining') {
+      breadcrumbs = [{ label: 'Restaurant & Dining', route: '/admin/dining' }];
+      childView = <ModulePlaceholderView moduleKey="dining" />;
+    } else if (currentRoute === '/admin/bar') {
+      breadcrumbs = [{ label: 'Bar & Drinks', route: '/admin/bar' }];
+      childView = <ModulePlaceholderView moduleKey="bar" />;
+    } else if (currentRoute === '/admin/facilities') {
+      breadcrumbs = [{ label: 'Facilities & Amenities', route: '/admin/facilities' }];
+      childView = <ModulePlaceholderView moduleKey="facilities" />;
+    } else if (currentRoute === '/admin/testimonials') {
+      breadcrumbs = [{ label: 'Testimonials & Reviews', route: '/admin/testimonials' }];
+      childView = <ModulePlaceholderView moduleKey="testimonials" />;
+    } else if (currentRoute === '/admin/spa') {
+      breadcrumbs = [{ label: 'Spa & Wellness', route: '/admin/spa' }];
+      childView = <ModulePlaceholderView moduleKey="spa" />;
+    } else if (currentRoute === '/admin/offers') {
+      breadcrumbs = [{ label: 'Offers & Packages', route: '/admin/offers' }];
+      childView = <ModulePlaceholderView moduleKey="offers" />;
+    } else if (currentRoute === '/admin/gallery') {
+      breadcrumbs = [{ label: 'Gallery & Media', route: '/admin/gallery' }];
+      childView = <ModulePlaceholderView moduleKey="gallery" />;
+    } else if (currentRoute === '/admin/about') {
+      breadcrumbs = [{ label: 'About Hotel', route: '/admin/about' }];
+      childView = <ModulePlaceholderView moduleKey="about" />;
+    } else if (currentRoute === '/admin/contact') {
+      breadcrumbs = [{ label: 'Contact & Hotel Info', route: '/admin/contact' }];
+      childView = <ModulePlaceholderView moduleKey="contact" />;
+    } else if (currentRoute === '/admin/policies') {
+      breadcrumbs = [{ label: 'Hotel Policies', route: '/admin/policies' }];
+      childView = <ModulePlaceholderView moduleKey="policies" />;
+    } else if (currentRoute === '/admin/settings') {
+      breadcrumbs = [{ label: 'Website Settings', route: '/admin/settings' }];
+      childView = <ModulePlaceholderView moduleKey="settings" />;
+    } else {
+      // Fallback within admin
+      breadcrumbs = [{ label: 'Dashboard' }];
+      childView = <AdminDashboardView />;
+    }
+
+    return <AdminLayout breadcrumbs={breadcrumbs}>{childView}</AdminLayout>;
+  };
+
   // Route matching
   const renderCurrentView = () => {
+    if (currentRoute.startsWith('/admin')) {
+      return renderAdminView();
+    }
     if (currentRoute === '/') {
       return <HomeView />;
     }
@@ -74,6 +140,7 @@ function AppContent() {
   };
 
   const isHmsView = currentRoute.startsWith('/app');
+  const isAdminView = currentRoute.startsWith('/admin');
   const isDedicatedAuthView = 
     currentRoute === '/login' || 
     currentRoute === '/auth' || 
@@ -82,7 +149,7 @@ function AppContent() {
     currentRoute === '/unauthorized' || 
     currentRoute === '/access-denied';
 
-  const hidePublicChrome = isHmsView || isDedicatedAuthView;
+  const hidePublicChrome = isHmsView || isDedicatedAuthView || isAdminView;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F5EF] text-[#25303A] antialiased selection:bg-[#F2C777]/30 selection:text-[#02070D]">

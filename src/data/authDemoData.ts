@@ -76,9 +76,9 @@ export const DEMO_LOGIN_PRESETS: Record<LoginRole, DemoLoginPreset> = {
     descEn: 'Comprehensive overview of property occupancy, RevPAR, ADR, housekeeping, and revenue.',
     defaultEmail: 'admin@nordicgate.se',
     defaultPassword: 'AdminGate2026!',
-    destination: '/app',
-    destinationLabelSv: 'HMS · Hotellledning',
-    destinationLabelEn: 'HMS · Executive Overview',
+    destination: '/admin',
+    destinationLabelSv: 'CMS · Webbplatsadministration & CMS',
+    destinationLabelEn: 'CMS · Website Admin & Content Management',
     user: {
       id: 'staff-1',
       name: 'Astrid Lindqvist',

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PhysicalRoom, ROOM_STATUS_CONFIG } from './roomTypes';
-import { Edit2, Sparkles, AlertCircle, Wrench, Ban, Layers } from 'lucide-react';
+import { Edit2, Layers, BedDouble } from 'lucide-react';
+import { loadAdminGallery } from '../../../data/adminMockData';
+import { getPreferredRoomTypeImage } from '../gallery/galleryTypes';
 
 export interface RoomFloorGridProps {
   rooms: PhysicalRoom[];
@@ -11,6 +13,8 @@ export const RoomFloorGrid: React.FC<RoomFloorGridProps> = ({
   rooms,
   onEditRoom,
 }) => {
+  const galleryItems = useMemo(() => loadAdminGallery(), []);
+
   // Group rooms by floor
   const floorGroups = React.useMemo(() => {
     const groups: Record<string, PhysicalRoom[]> = {};
@@ -86,21 +90,35 @@ export const RoomFloorGrid: React.FC<RoomFloorGridProps> = ({
           <div className="p-4 sm:p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {floorRooms.map((room) => {
               const statusCfg = ROOM_STATUS_CONFIG[room.status];
+              const preferredImg = getPreferredRoomTypeImage(room.room_type, galleryItems);
 
               return (
                 <div
                   key={room.id}
                   onClick={() => onEditRoom(room)}
-                  className="group relative p-3.5 rounded-xl border border-[#EDE7DC] bg-white hover:border-[#BF8641] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[112px]"
+                  className="group relative p-3 rounded-xl border border-[#EDE7DC] bg-white hover:border-[#BF8641] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[116px]"
                 >
-                  <div className="flex items-start justify-between gap-1">
-                    <div>
-                      <span className="font-mono text-base font-bold text-[#02070D] group-hover:text-[#BF8641] transition-colors">
-                        {room.room_number}
-                      </span>
-                      <p className="text-[11px] font-medium text-[#5D6B78] line-clamp-1 mt-0.5">
-                        {room.room_type_name}
-                      </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {preferredImg ? (
+                        <img
+                          src={preferredImg.image_url}
+                          alt={room.room_type_name}
+                          className="w-9 h-9 rounded-lg object-cover shrink-0 border border-[#EDE7DC] shadow-2xs"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-lg bg-[#F8F5EF] border border-dashed border-[#D3C8B9] flex items-center justify-center text-stone-300 shrink-0">
+                          <BedDouble className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <span className="font-mono text-base font-bold text-[#02070D] group-hover:text-[#BF8641] transition-colors block">
+                          {room.room_number}
+                        </span>
+                        <p className="text-[11px] font-medium text-[#5D6B78] line-clamp-1">
+                          {room.room_type_name}
+                        </p>
+                      </div>
                     </div>
 
                     <button
@@ -109,7 +127,7 @@ export const RoomFloorGrid: React.FC<RoomFloorGridProps> = ({
                         e.stopPropagation();
                         onEditRoom(room);
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-stone-400 hover:text-[#0D1A26] rounded transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-1 text-stone-400 hover:text-[#0D1A26] rounded transition-opacity shrink-0"
                       title="Edit room"
                     >
                       <Edit2 className="w-3.5 h-3.5" />

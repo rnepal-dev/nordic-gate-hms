@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { Star, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import { TextField } from '../../../components/ui/TextField';
 import { Textarea } from '../../../components/ui/Textarea';
 import { BooleanField } from '../../../components/ui/BooleanField';
@@ -12,7 +13,8 @@ import {
   RoomTypeFormValues,
   generateRoomTypeSlug,
 } from './roomTypeTypes';
-import { loadRoomAmenities } from '../../../data/adminMockData';
+import { loadRoomAmenities, loadAdminGallery } from '../../../data/adminMockData';
+import { useHotel } from '../../../context/HotelContext';
 
 export interface RoomTypeFormProps {
   initialData?: RoomType | null;
@@ -28,6 +30,14 @@ export const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
   isLoading = false,
 }) => {
   const isEditing = Boolean(initialData);
+  const { navigate } = useHotel();
+
+  // Derive linked gallery photos for this room type
+  const relatedGallery = useMemo(() => {
+    if (!initialData?.id) return [];
+    const allGallery = loadAdminGallery();
+    return allGallery.filter((item) => item.room_type === initialData.id);
+  }, [initialData]);
 
   const defaultValues: RoomTypeFormValues = {
     name: initialData?.name || '',
@@ -209,6 +219,84 @@ export const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
             />
           )}
         />
+      </div>
+
+      {/* Section 4: Related Gallery Photography */}
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between border-b border-[#EDE7DC] pb-2">
+          <div className="flex items-center gap-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#02070D]">
+              4. Related Gallery Photography
+            </h4>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EDE7DC] text-[#25303A]">
+              {relatedGallery.length} {relatedGallery.length === 1 ? 'Photo' : 'Photos'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/gallery')}
+            className="text-xs font-semibold text-[#BF8641] hover:text-[#8C5F27] flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <span>Manage in Gallery</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <p className="text-[11px] text-[#5D6B78] -mt-1">
+          Photos associated with this room class. Preferred preview prioritizes active featured images, then display order.
+        </p>
+
+        {relatedGallery.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-2.5 bg-[#F8F5EF]/60 rounded-xl border border-[#EDE7DC]">
+            {relatedGallery.map((img) => (
+              <div
+                key={img.id}
+                className="relative rounded-lg overflow-hidden border border-[#D3C8B9] bg-stone-900 group shadow-2xs"
+              >
+                <img
+                  src={img.image_url}
+                  alt={img.title}
+                  className="w-full h-24 object-cover"
+                />
+                {img.is_featured && (
+                  <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[#0D1A26]/85 text-[#F2C777] text-[9px] font-bold shadow-xs">
+                    <Star className="w-2.5 h-2.5 fill-[#F2C777]" />
+                    <span>Featured</span>
+                  </div>
+                )}
+                <div className="absolute bottom-1.5 left-1.5">
+                  <span
+                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                      img.is_active
+                        ? 'bg-emerald-950/80 text-emerald-300'
+                        : 'bg-stone-900/80 text-stone-400'
+                    }`}
+                  >
+                    {img.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div className="absolute top-1.5 right-1.5 px-1 py-0.5 rounded bg-black/60 text-[9px] font-mono text-white">
+                  #{img.display_order}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4 rounded-xl border border-dashed border-[#D3C8B9] text-center bg-white space-y-2">
+            <ImageIcon className="w-6 h-6 text-stone-300 mx-auto" />
+            <p className="text-xs text-[#5D6B78]">
+              No gallery photography is linked to this room type yet.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/admin/gallery')}
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#0D1A26] bg-[#EDE7DC] hover:bg-[#D3C8B9] rounded-lg transition-colors cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Link or Upload Photo in Gallery</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons */}

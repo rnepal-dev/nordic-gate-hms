@@ -338,9 +338,11 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Hotel Nordic Gate Exterior at Twilight',
     description: 'Architectural facade capturing Scandinavian heritage against dusk sky at Gamla Tingstadsgatan 1.',
     image_url: HOTEL_IMAGES.facadeHero,
+    image: HOTEL_IMAGES.facadeHero,
     category: 'exterior',
     category_display: getGalleryCategoryDisplay('exterior'),
     is_featured: true,
+    is_active: true,
     room_type: null,
     room_type_name: null,
     display_order: 1,
@@ -351,11 +353,13 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Heritage Suite Drawing Room & Fireplace',
     description: 'Restored 1888 Gustafian mouldings, herringbone parquet, and bespoke king bed setting.',
     image_url: HOTEL_IMAGES.heritageSuite,
-    category: 'rooms',
-    category_display: getGalleryCategoryDisplay('rooms'),
+    image: HOTEL_IMAGES.heritageSuite,
+    category: 'room',
+    category_display: getGalleryCategoryDisplay('room'),
     is_featured: true,
+    is_active: true,
     room_type: 4, // Superior Double tier / Heritage
-    room_type_name: getRoomTypeName(4),
+    room_type_name: 'Superior Double Room',
     display_order: 2,
     created_at: '2026-10-16 11:30',
   },
@@ -364,11 +368,13 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Deluxe Canal View Window Daybed',
     description: 'Deep cushioned window embrasure with wool throws overlooking the waterway.',
     image_url: HOTEL_IMAGES.deluxeCanal,
-    category: 'rooms',
-    category_display: getGalleryCategoryDisplay('rooms'),
+    image: HOTEL_IMAGES.deluxeCanal,
+    category: 'room',
+    category_display: getGalleryCategoryDisplay('room'),
     is_featured: false,
+    is_active: true,
     room_type: 3, // Standard Twin
-    room_type_name: getRoomTypeName(3),
+    room_type_name: 'Standard Twin Room',
     display_order: 3,
     created_at: '2026-10-17 09:45',
   },
@@ -377,9 +383,11 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Nordic Restaurant & Dining Hall',
     description: 'Warm lighting and oak timber tables for evening dinners and Scandinavian organic breakfast.',
     image_url: HOTEL_IMAGES.diningRestaurant,
-    category: 'dining',
-    category_display: getGalleryCategoryDisplay('dining'),
+    image: HOTEL_IMAGES.diningRestaurant,
+    category: 'restaurant',
+    category_display: getGalleryCategoryDisplay('restaurant'),
     is_featured: true,
+    is_active: true,
     room_type: null,
     room_type_name: null,
     display_order: 4,
@@ -390,9 +398,11 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Heated Indoor Swimming Pool & Sauna',
     description: 'Limestone surrounds and clear heated waters for restorative relaxation.',
     image_url: HOTEL_IMAGES.spaWellness,
-    category: 'wellness',
-    category_display: getGalleryCategoryDisplay('wellness'),
+    image: HOTEL_IMAGES.spaWellness,
+    category: 'pool',
+    category_display: getGalleryCategoryDisplay('pool'),
     is_featured: true,
+    is_active: true,
     room_type: null,
     room_type_name: null,
     display_order: 5,
@@ -403,9 +413,11 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Cocktail Lounge & Evening Bar',
     description: 'Plush velvet seating and warm brass details for intimate evening conversations.',
     image_url: HOTEL_IMAGES.barLounge,
-    category: 'bar',
-    category_display: getGalleryCategoryDisplay('bar'),
+    image: HOTEL_IMAGES.barLounge,
+    category: 'interior',
+    category_display: getGalleryCategoryDisplay('interior'),
     is_featured: false,
+    is_active: true,
     room_type: null,
     room_type_name: null,
     display_order: 6,
@@ -416,9 +428,11 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Artisanal Craft Spirits & Nordic Cocktails',
     description: 'Handcrafted Swedish botanical gin, lingonberry syrups, and locally sourced botanicals.',
     image_url: HOTEL_IMAGES.barDrinks,
-    category: 'bar',
-    category_display: getGalleryCategoryDisplay('bar'),
+    image: HOTEL_IMAGES.barDrinks,
+    category: 'restaurant',
+    category_display: getGalleryCategoryDisplay('restaurant'),
     is_featured: false,
+    is_active: true,
     room_type: null,
     room_type_name: null,
     display_order: 7,
@@ -429,28 +443,102 @@ export const INITIAL_ADMIN_GALLERY: ApiGalleryItem[] = [
     title: 'Family Room Double Bed & Living Area',
     description: 'Spacious setup with comfortable bedding tailored for traveling families.',
     image_url: HOTEL_IMAGES.deluxeCanal,
-    category: 'rooms',
-    category_display: getGalleryCategoryDisplay('rooms'),
+    image: HOTEL_IMAGES.deluxeCanal,
+    category: 'room',
+    category_display: getGalleryCategoryDisplay('room'),
     is_featured: false,
+    is_active: true,
     room_type: 5, // Family Room
-    room_type_name: getRoomTypeName(5),
+    room_type_name: 'Family Room',
     display_order: 8,
     created_at: '2026-10-22 12:00',
   },
+  {
+    id: 9,
+    title: 'Compact Double Room Warm Oak Finishes',
+    description: 'Intimate guest room with bespoke walnut millwork and plush queen bed.',
+    image_url: HOTEL_IMAGES.deluxeCanal,
+    image: HOTEL_IMAGES.deluxeCanal,
+    category: 'room',
+    category_display: getGalleryCategoryDisplay('room'),
+    is_featured: true,
+    is_active: true,
+    room_type: 1, // Compact Double
+    room_type_name: 'Compact Double Room',
+    display_order: 9,
+    created_at: '2026-10-23 10:15',
+  },
+  {
+    id: 10,
+    title: 'Compact Twin Room Urban View',
+    description: 'Efficient twin bedding layout with Scandinavian work station and fiber internet.',
+    image_url: HOTEL_IMAGES.deluxeCanal,
+    image: HOTEL_IMAGES.deluxeCanal,
+    category: 'room',
+    category_display: getGalleryCategoryDisplay('room'),
+    is_featured: true,
+    is_active: true,
+    room_type: 2, // Compact Twin
+    room_type_name: 'Compact Twin Room',
+    display_order: 10,
+    created_at: '2026-10-23 14:00',
+  },
+  {
+    id: 11,
+    title: 'Nordic Partner Fitness Facility & Cardio',
+    description: 'Complimentary guest access to full strength and cardio suite across the plaza.',
+    image_url: HOTEL_IMAGES.spaWellness,
+    image: HOTEL_IMAGES.spaWellness,
+    category: 'gym',
+    category_display: getGalleryCategoryDisplay('gym'),
+    is_featured: false,
+    is_active: true,
+    room_type: null,
+    room_type_name: null,
+    display_order: 11,
+    created_at: '2026-10-24 09:30',
+  },
+  {
+    id: 12,
+    title: 'Gothenburg Conference & Executive Boardroom',
+    description: 'Natural daylit meeting facilities equipped with 4K UHD presentation screens and video conferencing.',
+    image_url: HOTEL_IMAGES.facadeHero,
+    image: HOTEL_IMAGES.facadeHero,
+    category: 'conference',
+    category_display: getGalleryCategoryDisplay('conference'),
+    is_featured: false,
+    is_active: true,
+    room_type: null,
+    room_type_name: null,
+    display_order: 12,
+    created_at: '2026-10-25 15:00',
+  },
 ];
 
-const GALLERY_STORAGE_KEY = 'nordic_gate_admin_gallery_v1';
+const GALLERY_STORAGE_KEY = 'nordic_gate_admin_gallery_v2';
 
 export const loadAdminGallery = (): ApiGalleryItem[] => {
+  let items = INITIAL_ADMIN_GALLERY;
   try {
     const raw = localStorage.getItem(GALLERY_STORAGE_KEY);
     if (raw) {
-      return JSON.parse(raw);
+      items = JSON.parse(raw);
     }
   } catch (err) {
     console.error('Failed to load gallery from storage:', err);
   }
-  return INITIAL_ADMIN_GALLERY;
+
+  // Cross-Module Dynamic Name Sync: Look up current Room Type name dynamically
+  const roomTypes = loadRoomTypes();
+  const roomTypeMap = new Map(roomTypes.map((r) => [r.id, r.name]));
+
+  return items.map((item) => ({
+    ...item,
+    is_active: item.is_active !== undefined ? item.is_active : true,
+    image: item.image || item.image_url,
+    category_display: getGalleryCategoryDisplay(item.category),
+    room_type_name: item.room_type ? roomTypeMap.get(item.room_type) || `Room Type #${item.room_type}` : null,
+  }));
 };
 
 export const saveAdminGallery = (items: ApiGalleryItem[]): void => {

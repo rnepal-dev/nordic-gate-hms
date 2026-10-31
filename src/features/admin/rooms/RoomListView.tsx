@@ -20,7 +20,9 @@ import {
   loadRooms,
   saveRooms,
   loadRoomTypes,
+  loadAdminGallery,
 } from '../../../data/adminMockData';
+import { getPreferredRoomTypeImage } from '../gallery/galleryTypes';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { TableToolbar } from '../../../components/admin/TableToolbar';
 import { AdminDataTable, Column } from '../../../components/admin/AdminDataTable';
@@ -37,6 +39,7 @@ export const RoomListView: React.FC = () => {
 
   const [rooms, setRooms] = useState<PhysicalRoom[]>(() => loadRooms());
   const roomTypes = useMemo(() => loadRoomTypes(), []);
+  const galleryItems = useMemo(() => loadAdminGallery(), []);
 
   // View mode: 'table' or 'grid'
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
@@ -259,16 +262,28 @@ export const RoomListView: React.FC = () => {
       key: 'room_type_name',
       header: 'Room Class',
       sortable: true,
-      render: (item) => (
-        <div>
-          <span className="font-semibold text-xs text-[#0D1A26]">
-            {item.room_type_name}
-          </span>
-          <div className="text-[11px] text-[#5D6B78] font-mono">
-            Type ID: #{item.room_type}
+      render: (item) => {
+        const preferredImg = getPreferredRoomTypeImage(item.room_type, galleryItems);
+        return (
+          <div className="flex items-center gap-2.5">
+            {preferredImg ? (
+              <img
+                src={preferredImg.image_url}
+                alt={item.room_type_name}
+                className="w-10 h-8 rounded-lg object-cover shrink-0 border border-[#EDE7DC] shadow-2xs"
+              />
+            ) : null}
+            <div>
+              <span className="font-semibold text-xs text-[#0D1A26] block">
+                {item.room_type_name}
+              </span>
+              <div className="text-[10px] text-[#5D6B78] font-mono">
+                Class ID: #{item.room_type}
+              </div>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'floor',

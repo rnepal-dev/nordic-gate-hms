@@ -19,7 +19,9 @@ import {
   saveRoomTypes,
   loadRoomAmenities,
   loadRooms,
+  loadAdminGallery,
 } from '../../../data/adminMockData';
+import { getPreferredRoomTypeImage } from '../gallery/galleryTypes';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { TableToolbar } from '../../../components/admin/TableToolbar';
 import { AdminDataTable, Column } from '../../../components/admin/AdminDataTable';
@@ -173,15 +175,27 @@ export const RoomTypeListView: React.FC = () => {
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
 
-    // Check if rooms depend on this room type
+    // Check if physical rooms depend on this room type
     const physicalRooms = loadRooms();
     const assignedRooms = physicalRooms.filter((r) => r.room_type === deleteTarget.id);
 
-    if (assignedRooms.length > 0) {
+    // Check if gallery images are associated with this room type
+    const galleryItems = loadAdminGallery();
+    const associatedGallery = galleryItems.filter((g) => g.room_type === deleteTarget.id);
+
+    if (assignedRooms.length > 0 || associatedGallery.length > 0) {
+      const parts: string[] = [];
+      if (assignedRooms.length > 0) {
+        parts.push(`${assignedRooms.length} physical room(s)`);
+      }
+      if (associatedGallery.length > 0) {
+        parts.push(`${associatedGallery.length} gallery image(s)`);
+      }
+
       showToast({
         type: 'error',
         title: 'Cannot Delete Room Type',
-        message: `${assignedRooms.length} physical room(s) are assigned to this class. Reassign them first.`,
+        message: `Cannot delete: ${parts.join(' and ')} are linked to "${deleteTarget.name}". Reassign or unlink them first.`,
       });
       setDeleteTarget(null);
       return;
@@ -209,6 +223,9 @@ export const RoomTypeListView: React.FC = () => {
       .join(', ');
   };
 
+  // Gallery items for preferred thumbnail derivation
+  const galleryItems = useMemo(() => loadAdminGallery(), []);
+
   // Table Columns
   const columns: Column<RoomType>[] = [
     {
@@ -222,19 +239,35 @@ export const RoomTypeListView: React.FC = () => {
       key: 'name',
       header: 'Room Type',
       sortable: true,
-      render: (item) => (
-        <div className="py-0.5">
-          <div className="font-semibold text-[#02070D] flex items-center gap-2">
-            <span>{item.name}</span>
-            <span className="font-mono text-[10px] text-stone-400 font-normal">
-              #{item.id}
-            </span>
+      render: (item) => {
+        const preferredImg = getPreferredRoomTypeImage(item.id, galleryItems);
+        return (
+          <div className="flex items-center gap-3 py-1">
+            {preferredImg ? (
+              <img
+                src={preferredImg.image_url}
+                alt={item.name}
+                className="w-12 h-9 rounded-lg object-cover shrink-0 shadow-2xs border border-[#EDE7DC]"
+              />
+            ) : (
+              <div className="w-12 h-9 rounded-lg bg-[#F8F5EF] border border-dashed border-[#D3C8B9] flex items-center justify-center text-stone-300 shrink-0">
+                <Bed className="w-4 h-4" />
+              </div>
+            )}
+            <div>
+              <div className="font-semibold text-[#02070D] flex items-center gap-2">
+                <span>{item.name}</span>
+                <span className="font-mono text-[10px] text-stone-400 font-normal">
+                  #{item.id}
+                </span>
+              </div>
+              <div className="text-[11px] text-[#5D6B78] font-mono">
+                /{item.slug}
+              </div>
+            </div>
           </div>
-          <div className="text-[11px] text-[#5D6B78] font-mono">
-            /{item.slug}
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'max_occupancy',

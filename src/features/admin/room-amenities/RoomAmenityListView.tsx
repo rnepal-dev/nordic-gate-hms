@@ -15,6 +15,7 @@ import {
 import {
   loadRoomAmenities,
   saveRoomAmenities,
+  loadRoomTypes,
 } from '../../../data/adminMockData';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { TableToolbar } from '../../../components/admin/TableToolbar';
@@ -178,6 +179,23 @@ export const RoomAmenityListView: React.FC = () => {
 
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
+
+    // Check if any Room Types reference this amenity
+    const roomTypes = loadRoomTypes();
+    const referencingTypes = roomTypes.filter(
+      (rt) => rt.amenity_ids && rt.amenity_ids.includes(deleteTarget.id)
+    );
+
+    if (referencingTypes.length > 0) {
+      showToast({
+        type: 'error',
+        title: 'Cannot Delete Amenity',
+        message: `Cannot delete: "${deleteTarget.name}" is assigned to ${referencingTypes.length} room class(es) (${referencingTypes.map((r) => r.name).join(', ')}). Unlink it first.`,
+      });
+      setDeleteTarget(null);
+      return;
+    }
+
     const updated = amenities.filter((a) => a.id !== deleteTarget.id);
     updateAmenities(updated);
     showToast({

@@ -2,23 +2,27 @@ import React, { useState, useMemo } from 'react';
 import {
   Plus,
   LayoutGrid,
-  Table as TableIcon,
+  List,
   Star,
   Edit2,
   Trash2,
   BedDouble,
-  Image as ImageIcon,
+  CheckCircle2,
+  XCircle,
+  Eye,
+  Filter,
 } from 'lucide-react';
 import {
   ApiGalleryItem,
   ApiGalleryPayload,
   GALLERY_CATEGORIES,
   getGalleryCategoryDisplay,
-  getRoomTypeName,
+  prepareGalleryFormData,
 } from './galleryTypes';
 import {
   loadAdminGallery,
   saveAdminGallery,
+  loadRoomTypes,
 } from '../../../data/adminMockData';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { TableToolbar } from '../../../components/admin/TableToolbar';
@@ -28,6 +32,7 @@ import { Button } from '../../../components/ui/Button';
 import { Drawer } from '../../../components/ui/Drawer';
 import { DeleteConfirmation } from '../../../components/admin/DeleteConfirmation';
 import { ImageGalleryGrid } from './ImageGalleryGrid';
+import { ImageLightboxModal } from './ImageLightboxModal';
 import { GalleryForm } from './GalleryForm';
 import { useToast } from '../../../components/ui/Toast';
 
@@ -37,24 +42,35 @@ export const GalleryListView: React.FC = () => {
   const [galleryItems, setGalleryItems] = useState<ApiGalleryItem[]>(() =>
     loadAdminGallery()
   );
+  const roomTypes = useMemo(() => loadRoomTypes(), []);
+
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchValue, setSearchValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [featureFilter, setFeatureFilter] = useState<string>('all');
+  const [roomTypeFilter, setRoomTypeFilter] = useState<string>('all');
+
   const [sortColumn, setSortColumn] = useState<string>('display_order');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
 
-  // Drawer & Deletion states
+  // Drawer, Lightbox & Deletion states
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ApiGalleryItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApiGalleryItem | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<ApiGalleryItem | null>(null);
 
   const updateGallery = (newItems: ApiGalleryItem[]) => {
     setGalleryItems(newItems);
     saveAdminGallery(newItems);
   };
+
+  // Build room type map for display
+  const roomTypeMap = useMemo(() => {
+    return new Map(roomTypes.map((rt) => [rt.id, rt.name]));
+  }, [roomTypes]);
 
   // Search & Filtering
   const filteredItems = useMemo(() => {
@@ -72,19 +88,32 @@ export const GalleryListView: React.FC = () => {
         return false;
       }
 
+      if (statusFilter === 'active' && !item.is_active) {
+        return false;
+      }
+      if (statusFilter === 'inactive' && item.is_active) {
+        return false;
+      }
+
       if (featureFilter === 'featured' && !item.is_featured) {
         return false;
       }
       if (featureFilter === 'standard' && item.is_featured) {
         return false;
       }
-      if (featureFilter === 'rooms' && item.room_type === null) {
-        return false;
+
+      if (roomTypeFilter !== 'all') {
+        if (roomTypeFilter === 'general' && item.room_type !== null) {
+          return false;
+        }
+        if (roomTypeFilter !== 'general' && String(item.room_type) !== roomTypeFilter) {
+          return false;
+        }
       }
 
       return true;
     });
-  }, [galleryItems, searchValue, categoryFilter, featureFilter]);
+  }, [galleryItems, searchValue, categoryFilter, statusFilter, featureFilter, roomTypeFilter]);
 
   // Sorting
   const sortedItems = useMemo(() => {
@@ -105,32 +134,22 @@ export const GalleryListView: React.FC = () => {
     return sorted;
   }, [filteredItems, sortColumn, sortDirection]);
 
-  // Pagination
-  const totalItems = sortedItems.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+  // Paginated slice
   const paginatedItems = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return sortedItems.slice(start, start + pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    return sortedItems.slice(startIndex, startIndex + pageSize);
   }, [sortedItems, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(sortedItems.length / pageSize) || 1;
 
   const handleSort = (columnKey: string) => {
     if (sortColumn === columnKey) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortColumn(columnKey);
       setSortDirection('asc');
     }
   };
-
-  const handleResetFilters = () => {
-    setSearchValue('');
-    setCategoryFilter('all');
-    setFeatureFilter('all');
-    setCurrentPage(1);
-  };
-
-  const hasActiveFilters =
-    Boolean(searchValue) || categoryFilter !== 'all' || featureFilter !== 'all';
 
   const handleOpenCreate = () => {
     setEditingItem(null);
@@ -142,111 +161,140 @@ export const GalleryListView: React.FC = () => {
     setDrawerOpen(true);
   };
 
-  const handleFormSubmit = (payload: ApiGalleryPayload & { id?: number }) => {
-    const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
-    const roomName = getRoomTypeName(payload.room_type);
-    const categoryDisplay = getGalleryCategoryDisplay(payload.category);
+  const handleFormSubmit = (payload: ApiGalleryPayload, selectedFile?: File | null) => {
+    const now = new Date().toISOString();
 
-    if (payload.id) {
-      // Update
-      const updated = galleryItems.map((item) =>
-        item.id === payload.id
-          ? {
-              ...item,
-              ...payload,
-              room_type_name: roomName,
-              category_display: categoryDisplay,
-            }
-          : item
-      );
-      updateGallery(updated);
+    // Prepare multipart FormData conforming to confirmed Django upload contract
+    const formData = prepareGalleryFormData(
+      {
+        title: payload.title,
+        description: payload.description,
+        category: payload.category,
+        is_featured: payload.is_featured,
+        is_active: payload.is_active,
+        display_order: payload.display_order,
+        room_type: payload.room_type,
+      },
+      selectedFile
+    );
+
+    // Dynamic room type name resolution
+    const roomTypeName = payload.room_type ? roomTypeMap.get(payload.room_type) || null : null;
+
+    if (editingItem) {
+      const updated: ApiGalleryItem = {
+        ...editingItem,
+        title: payload.title,
+        description: payload.description,
+        image_url: payload.image_url,
+        image: payload.image_url,
+        category: payload.category,
+        category_display: getGalleryCategoryDisplay(payload.category),
+        is_featured: payload.is_featured,
+        is_active: payload.is_active,
+        room_type: payload.room_type,
+        room_type_name: roomTypeName,
+        display_order: payload.display_order,
+      };
+
+      updateGallery(galleryItems.map((g) => (g.id === updated.id ? updated : g)));
       showToast({
         type: 'success',
-        title: 'Image Updated',
-        message: `"${payload.title}" saved successfully.`,
+        title: 'Gallery Image Updated',
+        message: `Changes saved for "${payload.title}".`,
       });
     } else {
-      // Create
       const nextId =
-        galleryItems.reduce((max, item) => Math.max(max, item.id), 0) + 1;
-      const newItem: ApiGalleryItem = {
-        ...payload,
+        galleryItems.length > 0 ? Math.max(...galleryItems.map((g) => g.id)) + 1 : 1;
+      const created: ApiGalleryItem = {
         id: nextId,
-        room_type: payload.room_type ?? null,
-        room_type_name: roomName,
-        category_display: categoryDisplay,
+        title: payload.title,
+        description: payload.description,
+        image_url: payload.image_url,
+        image: payload.image_url,
+        category: payload.category,
+        category_display: getGalleryCategoryDisplay(payload.category),
+        is_featured: payload.is_featured,
+        is_active: payload.is_active,
+        room_type: payload.room_type,
+        room_type_name: roomTypeName,
+        display_order: payload.display_order,
         created_at: now,
       };
-      updateGallery([newItem, ...galleryItems]);
+
+      updateGallery([created, ...galleryItems]);
       showToast({
         type: 'success',
-        title: 'Image Added',
-        message: `"${payload.title}" added to Hotel Nordic Gate gallery.`,
+        title: 'Image Added to Gallery',
+        message: `"${payload.title}" is now part of the hotel asset catalog.`,
       });
     }
 
     setDrawerOpen(false);
-    setEditingItem(null);
   };
 
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    const updated = galleryItems.filter((i) => i.id !== deleteTarget.id);
-    updateGallery(updated);
+    updateGallery(galleryItems.filter((item) => item.id !== deleteTarget.id));
     showToast({
-      type: 'info',
-      title: 'Image Removed',
-      message: `"${deleteTarget.title}" deleted from media gallery.`,
+      type: 'success',
+      title: 'Image Deleted',
+      message: `"${deleteTarget.title}" was removed from the gallery catalog.`,
     });
     setDeleteTarget(null);
   };
 
-  // Table Columns (for Table View)
+  // Table Columns Definition
   const columns: Column<ApiGalleryItem>[] = [
     {
-      key: 'display_order',
-      header: 'Order',
-      sortable: true,
-      className: 'w-16 font-mono text-center',
-      headerClassName: 'w-16 text-center',
-      render: (item) => (
-        <span className="inline-block px-2 py-0.5 rounded bg-[#EDE7DC]/70 font-semibold text-xs text-[#0D1A26]">
-          {item.display_order}
-        </span>
-      ),
+      key: 'sn',
+      header: 'S.N',
+      className: 'w-14 text-center font-mono text-xs text-stone-400',
+      headerClassName: 'w-14 text-center',
+      render: (_, index) => (currentPage - 1) * pageSize + index + 1,
     },
     {
-      key: 'image_url',
-      header: 'Preview',
-      className: 'w-20',
-      headerClassName: 'w-20',
+      key: 'image',
+      header: 'Image',
+      className: 'w-20 text-center',
+      headerClassName: 'w-20 text-center',
       render: (item) => (
-        <div className="w-14 h-11 rounded-lg bg-stone-900 overflow-hidden border border-[#EDE7DC]">
+        <div
+          onClick={() => setPreviewTarget(item)}
+          className="relative w-14 h-11 rounded-lg overflow-hidden bg-stone-900 mx-auto cursor-pointer group shadow-2xs"
+          title="Click to preview in lightbox"
+        >
           <img
             src={item.image_url}
             alt={item.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
           />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+            <Eye className="w-3.5 h-3.5" />
+          </div>
         </div>
       ),
     },
     {
       key: 'title',
-      header: 'Title & Description',
+      header: 'Title & Context',
       sortable: true,
-      className: 'min-w-[260px] max-w-md',
+      className: 'min-w-[200px] max-w-sm',
       render: (item) => (
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#0D1A26] text-xs sm:text-sm">
+        <div className="py-0.5">
+          <div className="font-semibold text-xs text-[#02070D] flex items-center gap-1.5">
+            <span
+              onClick={() => setPreviewTarget(item)}
+              className="cursor-pointer hover:text-[#BF8641] transition-colors line-clamp-1"
+            >
               {item.title}
             </span>
-            <span className="text-[10px] font-mono text-stone-400">
+            <span className="font-mono text-[10px] text-stone-400 shrink-0 font-normal">
               #{item.id}
             </span>
           </div>
           {item.description && (
-            <p className="text-xs text-[#5D6B78] line-clamp-1 leading-relaxed">
+            <p className="text-[11px] text-[#5D6B78] line-clamp-1 mt-0.5">
               {item.description}
             </p>
           )}
@@ -257,65 +305,102 @@ export const GalleryListView: React.FC = () => {
       key: 'category',
       header: 'Category',
       sortable: true,
-      className: 'whitespace-nowrap',
+      className: 'w-36',
       render: (item) => (
-        <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-[#EDE7DC]/50 text-[#0D1A26] border border-[#D3C8B9]/50">
+        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#EDE7DC] text-[#0D1A26]">
           {item.category_display || getGalleryCategoryDisplay(item.category)}
         </span>
       ),
     },
     {
-      key: 'room_type_name',
-      header: 'Room Association',
-      className: 'whitespace-nowrap',
-      render: (item) =>
-        item.room_type_name ? (
-          <div className="flex items-center gap-1.5 text-xs text-[#0D1A26] font-medium">
-            <BedDouble className="w-3.5 h-3.5 text-[#BF8641]" />
-            <span>{item.room_type_name}</span>
-          </div>
-        ) : (
-          <span className="text-xs text-stone-400">General Hotel</span>
-        ),
+      key: 'room_type',
+      header: 'Room Class',
+      className: 'w-44',
+      render: (item) => (
+        <div>
+          {item.room_type_name ? (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-[#0D1A26]">
+              <BedDouble className="w-3.5 h-3.5 text-[#BF8641] shrink-0" />
+              <span className="truncate">{item.room_type_name}</span>
+            </span>
+          ) : (
+            <span className="text-stone-400 text-xs italic">General Hotel</span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'is_featured',
       header: 'Featured',
       sortable: true,
-      className: 'whitespace-nowrap',
+      className: 'w-24 text-center',
+      headerClassName: 'w-24 text-center',
       render: (item) =>
         item.is_featured ? (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-[#BF8641] border border-amber-200 text-xs font-bold">
-            <Star className="w-3 h-3 fill-[#BF8641]" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0D1A26] text-[#F2C777]">
+            <Star className="w-2.5 h-2.5 fill-[#F2C777]" />
             <span>Featured</span>
           </span>
         ) : (
-          <span className="text-xs text-stone-400">Standard</span>
+          <span className="text-stone-400 text-xs">—</span>
         ),
+    },
+    {
+      key: 'is_active',
+      header: 'Status',
+      sortable: true,
+      className: 'w-24 text-center',
+      headerClassName: 'w-24 text-center',
+      render: (item) => (
+        <span
+          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+            item.is_active
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-stone-100 text-stone-600 border border-stone-200'
+          }`}
+        >
+          {item.is_active ? (
+            <>
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>Active</span>
+            </>
+          ) : (
+            <>
+              <XCircle className="w-3 h-3 text-stone-400" />
+              <span>Inactive</span>
+            </>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'display_order',
+      header: 'Order',
+      sortable: true,
+      className: 'w-20 text-center font-mono text-xs text-[#0D1A26]',
+      headerClassName: 'w-20 text-center',
+      render: (item) => `#${item.display_order}`,
     },
     {
       key: 'actions',
       header: 'Actions',
-      className: 'text-right whitespace-nowrap w-24',
-      headerClassName: 'text-right w-24',
+      className: 'w-24 text-right',
+      headerClassName: 'w-24 text-right',
       render: (item) => (
-        <div
-          className="flex items-center justify-end gap-1"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center justify-end gap-1">
           <button
             type="button"
             onClick={() => handleOpenEdit(item)}
-            className="p-1.5 text-stone-500 hover:text-[#0D1A26] hover:bg-[#EDE7DC]/60 rounded-md transition-colors cursor-pointer"
-            title="Edit image"
+            className="p-1.5 text-[#5D6B78] hover:text-[#0D1A26] hover:bg-[#EDE7DC]/50 rounded-lg transition-colors cursor-pointer"
+            title="Edit Photography Asset"
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={() => setDeleteTarget(item)}
-            className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-            title="Delete image"
+            className="p-1.5 text-[#5D6B78] hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+            title="Delete Photography Asset"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -328,25 +413,20 @@ export const GalleryListView: React.FC = () => {
     <div className="space-y-6">
       <AdminPageHeader
         title="Hotel Gallery Management"
-        subtitle="Curate high-resolution photography of suites, restaurant dining, indoor pool, and Gothenburg surroundings."
-        badge={
-          <span className="text-xs font-bold px-2.5 py-1 bg-[#BF8641]/15 text-[#BF8641] rounded-full">
-            {galleryItems.length} Images
-          </span>
-        }
+        subtitle="Organize, upload, and curate high-resolution hotel photography across guest rooms, dining, heated pool, wellness, and exterior architecture."
         actions={
-          <div className="flex items-center gap-3">
-            {/* View Mode Toggle: Grid vs Table */}
-            <div className="flex items-center p-0.5 bg-white border border-[#D3C8B9] rounded-lg shadow-2xs">
+          <div className="flex items-center gap-2">
+            {/* View Mode Switcher */}
+            <div className="flex items-center bg-[#EDE7DC] p-0.5 rounded-xl border border-[#D3C8B9]">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewMode === 'grid'
-                    ? 'bg-[#0D1A26] text-white shadow-xs'
-                    : 'text-[#5D6B78] hover:text-[#0D1A26]'
+                    ? 'bg-[#0D1A26] text-[#F2C777] shadow-xs'
+                    : 'text-[#25303A] hover:text-[#0D1A26]'
                 }`}
-                title="Grid view"
+                title="Grid View"
               >
                 <LayoutGrid className="w-4 h-4" />
                 <span className="hidden sm:inline">Grid</span>
@@ -354,144 +434,203 @@ export const GalleryListView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`p-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`p-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewMode === 'table'
-                    ? 'bg-[#0D1A26] text-white shadow-xs'
-                    : 'text-[#5D6B78] hover:text-[#0D1A26]'
+                    ? 'bg-[#0D1A26] text-[#F2C777] shadow-xs'
+                    : 'text-[#25303A] hover:text-[#0D1A26]'
                 }`}
-                title="Table view"
+                title="Table View"
               >
-                <TableIcon className="w-4 h-4" />
+                <List className="w-4 h-4" />
                 <span className="hidden sm:inline">Table</span>
               </button>
             </div>
 
             <Button
               variant="primary"
-              size="md"
-              leftIcon={<Plus className="w-4 h-4" />}
               onClick={handleOpenCreate}
+              leftIcon={<Plus className="w-4 h-4" />}
             >
-              Add Image
+              Add New Photo
             </Button>
           </div>
         }
       />
 
-      <div className="bg-white rounded-xl border border-[#EDE7DC] shadow-xs overflow-hidden">
-        {/* Table Toolbar */}
+      {/* Toolbar & Filter Controls */}
+      <div className="space-y-3">
         <TableToolbar
           searchValue={searchValue}
-          onSearchChange={(val) => {
-            setSearchValue(val);
-            setCurrentPage(1);
-          }}
-          searchPlaceholder="Search titles, descriptions, or room types..."
+          onSearchChange={setSearchValue}
+          searchPlaceholder="Search photography by title, description, room..."
           categoryFilter={{
-            label: 'Category',
+            label: 'All Categories',
             value: categoryFilter,
+            onChange: setCategoryFilter,
             options: [
               { label: 'All Categories', value: 'all' },
-              ...GALLERY_CATEGORIES.map((c) => ({
-                label: c.label,
-                value: c.value,
-              })),
+              ...GALLERY_CATEGORIES.map((c) => ({ label: c.label, value: c.value })),
             ],
-            onChange: (val) => {
-              setCategoryFilter(val);
-              setCurrentPage(1);
-            },
           }}
           statusFilter={{
-            value: featureFilter,
+            value: statusFilter,
+            onChange: setStatusFilter,
             options: [
-              { label: 'All Photos', value: 'all' },
-              { label: 'Featured Only', value: 'featured' },
-              { label: 'Standard Only', value: 'standard' },
-              { label: 'Room Associated Only', value: 'rooms' },
+              { label: 'All Statuses', value: 'all' },
+              { label: 'Active Only', value: 'active' },
+              { label: 'Inactive Only', value: 'inactive' },
             ],
-            onChange: (val) => {
-              setFeatureFilter(val);
-              setCurrentPage(1);
-            },
           }}
-          hasActiveFilters={hasActiveFilters}
-          onResetFilters={handleResetFilters}
         />
 
-        {/* Dynamic Display: Grid View or Table View */}
-        <div className="p-4 sm:p-5">
-          {paginatedItems.length === 0 ? (
-            <div className="p-12 text-center text-sm text-[#5D6B78]">
-              No images match your active filters.
-            </div>
-          ) : viewMode === 'grid' ? (
-            <ImageGalleryGrid
-              items={paginatedItems}
-              onEdit={handleOpenEdit}
-              onDelete={setDeleteTarget}
-            />
-          ) : (
-            <AdminDataTable<ApiGalleryItem>
-              columns={columns}
-              data={paginatedItems}
-              keyExtractor={(item) => item.id.toString()}
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-            />
-          )}
-        </div>
+        {/* Supplementary Filters: Featured & Room Type */}
+        <div className="flex flex-wrap items-center gap-2 px-1 text-xs text-[#5D6B78]">
+          <span className="flex items-center gap-1 font-semibold text-[#0D1A26]">
+            <Filter className="w-3.5 h-3.5 text-[#BF8641]" />
+            Additional Filters:
+          </span>
 
-        {totalItems > 0 && (
+          {/* Featured Filter Chips */}
+          <div className="flex items-center gap-1 bg-[#F8F5EF] p-1 rounded-xl border border-[#EDE7DC]">
+            <button
+              type="button"
+              onClick={() => setFeatureFilter('all')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                featureFilter === 'all'
+                  ? 'bg-[#0D1A26] text-[#F2C777]'
+                  : 'hover:bg-white text-[#25303A]'
+              }`}
+            >
+              All Focus
+            </button>
+            <button
+              type="button"
+              onClick={() => setFeatureFilter('featured')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center gap-1 ${
+                featureFilter === 'featured'
+                  ? 'bg-[#0D1A26] text-[#F2C777]'
+                  : 'hover:bg-white text-[#25303A]'
+              }`}
+            >
+              <Star className="w-3 h-3 fill-[#F2C777]" />
+              Featured Only
+            </button>
+            <button
+              type="button"
+              onClick={() => setFeatureFilter('standard')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                featureFilter === 'standard'
+                  ? 'bg-[#0D1A26] text-[#F2C777]'
+                  : 'hover:bg-white text-[#25303A]'
+              }`}
+            >
+              Standard
+            </button>
+          </div>
+
+          {/* Room Type Association Filter Dropdown */}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <span className="text-[11px] font-semibold text-stone-400">Room Class:</span>
+            <select
+              value={roomTypeFilter}
+              onChange={(e) => setRoomTypeFilter(e.target.value)}
+              className="px-2.5 py-1 text-xs bg-white border border-[#D3C8B9] rounded-xl text-[#0D1A26] focus:outline-none focus:border-[#BF8641]"
+            >
+              <option value="all">All Room Types</option>
+              <option value="general">General Hotel Only</option>
+              {roomTypes.map((rt) => (
+                <option key={rt.id} value={String(rt.id)}>
+                  {rt.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area: Grid or Table */}
+      {viewMode === 'grid' ? (
+        <div className="space-y-6">
+          <ImageGalleryGrid
+            items={paginatedItems}
+            onEdit={handleOpenEdit}
+            onDelete={(item) => setDeleteTarget(item)}
+            onPreview={(item) => setPreviewTarget(item)}
+          />
+          <div className="bg-white rounded-2xl border border-[#D3C8B9] p-3 shadow-2xs">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={sortedItems.length}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-[#D3C8B9] shadow-xs overflow-hidden">
+          <AdminDataTable
+            columns={columns}
+            data={paginatedItems}
+            keyExtractor={(item) => String(item.id)}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            emptyState={{
+              title: 'No photography assets found',
+              description: 'Try adjusting your search keywords, category filters, or add a new photograph.',
+            }}
+          />
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={totalItems}
             pageSize={pageSize}
-            pageSizeOptions={[12, 24, 48]}
+            totalItems={sortedItems.length}
             onPageChange={setCurrentPage}
-            onPageSizeChange={(newSize) => {
-              setPageSize(newSize);
+            onPageSizeChange={(size) => {
+              setPageSize(size);
               setCurrentPage(1);
             }}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Create / Edit Drawer */}
       <Drawer
         isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setEditingItem(null);
-        }}
-        title={
-          editingItem ? `Edit Image #${editingItem.id}` : 'Add New Gallery Image'
-        }
-        description="Upload or link high-resolution hotel photography and associate with room tiers."
+        onClose={() => setDrawerOpen(false)}
+        title={editingItem ? `Edit Photography: ${editingItem.title}` : 'Upload New Photography'}
+        description="Upload high-resolution photography, configure categories, link room types, and manage featured display status."
         size="lg"
       >
         <GalleryForm
           initialData={editingItem}
           onSubmit={handleFormSubmit}
-          onCancel={() => {
-            setDrawerOpen(false);
-            setEditingItem(null);
-          }}
+          onCancel={() => setDrawerOpen(false)}
         />
       </Drawer>
 
-      {/* Delete Confirmation */}
-      {deleteTarget && (
-        <DeleteConfirmation
-          isOpen={true}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDeleteConfirm}
-          itemName={deleteTarget.title}
-          itemType="Image"
-        />
-      )}
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmation
+        isOpen={Boolean(deleteTarget)}
+        itemName={deleteTarget?.title || 'Photo'}
+        itemType="Photography Asset"
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteTarget(null)}
+      />
+
+      {/* Image Lightbox Modal */}
+      <ImageLightboxModal
+        item={previewTarget}
+        items={sortedItems}
+        isOpen={Boolean(previewTarget)}
+        onClose={() => setPreviewTarget(null)}
+        onNavigate={(nextItem) => setPreviewTarget(nextItem)}
+      />
     </div>
   );
 };

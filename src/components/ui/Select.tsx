@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, forwardRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 export interface SelectOption {
@@ -14,7 +14,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   containerClassName?: string;
 }
 
-export const Select: React.FC<SelectProps> = ({
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   label,
   options,
   helperText,
@@ -24,7 +24,7 @@ export const Select: React.FC<SelectProps> = ({
   containerClassName = '',
   disabled,
   ...props
-}) => {
+}, ref) => {
   const generatedId = useId();
   const selectId = id || generatedId;
 
@@ -48,6 +48,7 @@ export const Select: React.FC<SelectProps> = ({
       >
         <select
           id={selectId}
+          ref={ref}
           disabled={disabled}
           className={`w-full bg-transparent text-[#02070D] focus:outline-none appearance-none pr-6 cursor-pointer disabled:cursor-not-allowed ${className}`}
           {...props}
@@ -68,4 +69,6 @@ export const Select: React.FC<SelectProps> = ({
       ) : null}
     </div>
   );
-};
+});
+
+Select.displayName = 'Select';

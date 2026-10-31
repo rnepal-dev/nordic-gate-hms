@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, forwardRef } from 'react';
 
 export interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -9,7 +9,7 @@ export interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputEleme
   containerClassName?: string;
 }
 
-export const TextField: React.FC<TextFieldProps> = ({
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(({
   label,
   helperText,
   error,
@@ -20,7 +20,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   containerClassName = '',
   disabled,
   ...props
-}) => {
+}, ref) => {
   const generatedId = useId();
   const inputId = id || generatedId;
 
@@ -45,6 +45,7 @@ export const TextField: React.FC<TextFieldProps> = ({
         {leftIcon && <span className="mr-2.5 text-stone-400 shrink-0">{leftIcon}</span>}
         <input
           id={inputId}
+          ref={ref}
           disabled={disabled}
           className={`w-full bg-transparent text-[#02070D] placeholder:text-stone-400 focus:outline-none disabled:cursor-not-allowed ${className}`}
           {...props}
@@ -59,4 +60,6 @@ export const TextField: React.FC<TextFieldProps> = ({
       ) : null}
     </div>
   );
-};
+});
+
+TextField.displayName = 'TextField';

@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, forwardRef } from 'react';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -7,7 +7,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   containerClassName?: string;
 }
 
-export const Textarea: React.FC<TextareaProps> = ({
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   label,
   helperText,
   error,
@@ -17,7 +17,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   disabled,
   rows = 4,
   ...props
-}) => {
+}, ref) => {
   const generatedId = useId();
   const textareaId = id || generatedId;
 
@@ -41,6 +41,7 @@ export const Textarea: React.FC<TextareaProps> = ({
       >
         <textarea
           id={textareaId}
+          ref={ref}
           disabled={disabled}
           rows={rows}
           className={`w-full bg-transparent text-[#02070D] placeholder:text-stone-400 focus:outline-none resize-y disabled:cursor-not-allowed ${className}`}
@@ -55,4 +56,6 @@ export const Textarea: React.FC<TextareaProps> = ({
       ) : null}
     </div>
   );
-};
+});
+
+Textarea.displayName = 'Textarea';

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard,
+  DoorClosed,
   BedDouble,
   UtensilsCrossed,
   Wine,
@@ -61,13 +62,28 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       ],
     },
     {
-      title: 'Website Content',
+      title: 'Room Management',
       items: [
         {
-          label: 'Rooms & Suites',
+          label: 'Physical Rooms',
           route: '/admin/rooms',
+          icon: <DoorClosed className="w-4 h-4 shrink-0" />,
+        },
+        {
+          label: 'Room Types',
+          route: '/admin/room-types',
           icon: <BedDouble className="w-4 h-4 shrink-0" />,
         },
+        {
+          label: 'Room Amenities',
+          route: '/admin/room-amenities',
+          icon: <Sparkles className="w-4 h-4 shrink-0" />,
+        },
+      ],
+    },
+    {
+      title: 'Website Content',
+      items: [
         {
           label: 'Restaurant & Dining',
           route: '/admin/dining',

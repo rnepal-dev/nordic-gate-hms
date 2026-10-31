@@ -18,24 +18,53 @@ import {
 import { useHotel } from '../../../context/HotelContext';
 import { AdminPageHeader } from '../../../components/admin/AdminPageHeader';
 import { Button } from '../../../components/ui/Button';
-import { loadAdminFaqs, loadAdminFacilities, loadAdminGallery } from '../../../data/adminMockData';
+import {
+  loadAdminFaqs,
+  loadAdminFacilities,
+  loadAdminGallery,
+  loadRooms,
+  loadRoomTypes,
+  loadRoomAmenities,
+} from '../../../data/adminMockData';
 
 export const AdminDashboardView: React.FC = () => {
   const { navigate } = useHotel();
+  const rooms = loadRooms();
+  const roomTypes = loadRoomTypes();
+  const amenities = loadRoomAmenities();
   const faqs = loadAdminFaqs();
   const facilities = loadAdminFacilities();
   const gallery = loadAdminGallery();
+
+  const activeRooms = rooms.filter((r) => r.status === 'active').length;
   const publishedFaqsCount = faqs.filter((f) => f.status === 'published').length;
-  const availableFacilitiesCount = facilities.filter((f) => f.is_available).length;
 
   const statCards = [
     {
+      title: 'Physical Rooms',
+      count: rooms.length,
+      subtitle: `${activeRooms} active inventory (${rooms.filter((r) => r.status === 'maintenance').length} maint)`,
+      icon: <BedDouble className="w-5 h-5 text-[#BF8641]" />,
+      route: '/admin/rooms',
+      badge: 'Live Inventory',
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    },
+    {
+      title: 'Room Types & Classes',
+      count: roomTypes.length,
+      subtitle: `${amenities.length} room amenities configured`,
+      icon: <Sparkles className="w-5 h-5 text-[#BF8641]" />,
+      route: '/admin/room-types',
+      badge: 'Django REST',
+      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    },
+    {
       title: 'Facilities & Amenities',
       count: facilities.length,
-      subtitle: `${availableFacilitiesCount} active on property`,
-      icon: <Sparkles className="w-5 h-5 text-[#BF8641]" />,
+      subtitle: `${facilities.filter((f) => f.is_available).length} active on property`,
+      icon: <UtensilsCrossed className="w-5 h-5 text-[#BF8641]" />,
       route: '/admin/facilities',
-      badge: 'Live',
+      badge: 'Hotel Features',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     },
     {
@@ -44,25 +73,7 @@ export const AdminDashboardView: React.FC = () => {
       subtitle: `${publishedFaqsCount} published live`,
       icon: <HelpCircle className="w-5 h-5 text-[#BF8641]" />,
       route: '/admin/faqs',
-      badge: `${faqs.length} Total`,
-      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
-    },
-    {
-      title: 'Dining & Menus',
-      count: 24,
-      subtitle: 'Breakfast, Dinner & Bar',
-      icon: <UtensilsCrossed className="w-5 h-5 text-[#BF8641]" />,
-      route: '/admin/dining',
-      badge: 'Synced',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    },
-    {
-      title: 'Hotel Gallery',
-      count: gallery.length,
-      subtitle: `${gallery.filter((g) => g.is_featured).length} featured photos`,
-      icon: <ImageIcon className="w-5 h-5 text-[#BF8641]" />,
-      route: '/admin/gallery',
-      badge: 'Optimized',
+      badge: 'Guest Portal',
       badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     },
   ];

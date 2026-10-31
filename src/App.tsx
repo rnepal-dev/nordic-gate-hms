@@ -22,6 +22,9 @@ import { AdminDashboardView } from './features/admin/dashboard/AdminDashboardVie
 import { FaqListView } from './features/admin/faqs/FaqListView.tsx';
 import { FacilityListView } from './features/admin/facilities/FacilityListView.tsx';
 import { GalleryListView } from './features/admin/gallery/GalleryListView.tsx';
+import { RoomListView } from './features/admin/rooms/RoomListView.tsx';
+import { RoomTypeListView } from './features/admin/room-types/RoomTypeListView.tsx';
+import { RoomAmenityListView } from './features/admin/room-amenities/RoomAmenityListView.tsx';
 import { ModulePlaceholderView } from './features/admin/common/ModulePlaceholderView.tsx';
 import type { BreadcrumbItem } from './components/admin/AdminBreadcrumbs.tsx';
 
@@ -36,12 +39,18 @@ function AppContent() {
     if (currentRoute === '/admin' || currentRoute === '/admin/') {
       breadcrumbs = [{ label: 'Dashboard' }];
       childView = <AdminDashboardView />;
+    } else if (currentRoute === '/admin/rooms' || currentRoute.startsWith('/admin/rooms/')) {
+      breadcrumbs = [{ label: 'Physical Rooms', route: '/admin/rooms' }];
+      childView = <RoomListView />;
+    } else if (currentRoute === '/admin/room-types' || currentRoute.startsWith('/admin/room-types/')) {
+      breadcrumbs = [{ label: 'Room Types', route: '/admin/room-types' }];
+      childView = <RoomTypeListView />;
+    } else if (currentRoute === '/admin/room-amenities' || currentRoute.startsWith('/admin/room-amenities/')) {
+      breadcrumbs = [{ label: 'Room Amenities', route: '/admin/room-amenities' }];
+      childView = <RoomAmenityListView />;
     } else if (currentRoute === '/admin/faqs' || currentRoute.startsWith('/admin/faqs/')) {
       breadcrumbs = [{ label: 'FAQs Management', route: '/admin/faqs' }];
       childView = <FaqListView />;
-    } else if (currentRoute === '/admin/rooms') {
-      breadcrumbs = [{ label: 'Rooms & Suites', route: '/admin/rooms' }];
-      childView = <ModulePlaceholderView moduleKey="rooms" />;
     } else if (currentRoute === '/admin/dining') {
       breadcrumbs = [{ label: 'Restaurant & Dining', route: '/admin/dining' }];
       childView = <ModulePlaceholderView moduleKey="dining" />;

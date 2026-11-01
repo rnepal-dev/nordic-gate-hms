@@ -21,6 +21,7 @@ export const Navbar: React.FC = () => {
     { href: '/bar', labelSv: 'Bar & Dryck', labelEn: 'Bar & Drinks' },
     { href: '/spa', labelSv: 'Pool & Bastu', labelEn: 'Pool & Sauna' },
     { href: '/our-story', labelSv: 'Om Hotellet', labelEn: 'About Hotel' },
+    { href: '/contact', labelSv: 'Kontakt', labelEn: 'Contact Us' },
   ];
 
   const handleNavClick = (href: string) => {

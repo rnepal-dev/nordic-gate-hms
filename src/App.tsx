@@ -7,11 +7,14 @@ import { RoomsView } from './views/RoomsView.tsx';
 import { RoomDetailView } from './views/RoomDetailView.tsx';
 import { DiningView } from './views/DiningView.tsx';
 import { SpaView } from './views/SpaView.tsx';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store.ts';
 import { OurStoryView } from './views/OurStoryView.tsx';
 import { BookingEngineView } from './views/BookingEngineView.tsx';
 import { GuestPortalView } from './views/GuestPortalView.tsx';
 import { StaffDashboardView } from './views/StaffDashboardView.tsx';
 import { FaqView } from './views/FaqView.tsx';
+import { ContactView } from './views/ContactView.tsx';
 import { LoginView } from './views/LoginView.tsx';
 import { ForgotPasswordView } from './views/ForgotPasswordView.tsx';
 import { ResetPasswordView } from './views/ResetPasswordView.tsx';
@@ -120,7 +123,10 @@ function AppContent() {
       const slug = currentRoute.replace('/rooms/', '');
       return <RoomDetailView slug={slug} />;
     }
-    if (currentRoute === '/faq' || currentRoute === '/hotel-info' || currentRoute === '/facilities' || currentRoute === '/contact') {
+    if (currentRoute === '/contact') {
+      return <ContactView />;
+    }
+    if (currentRoute === '/faq' || currentRoute === '/hotel-info' || currentRoute === '/facilities') {
       return <FaqView />;
     }
     if (currentRoute === '/dining' || currentRoute === '/restaurant') {
@@ -174,8 +180,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HotelProvider>
-      <AppContent />
-    </HotelProvider>
+    <Provider store={store}>
+      <HotelProvider>
+        <AppContent />
+      </HotelProvider>
+    </Provider>
   );
 }

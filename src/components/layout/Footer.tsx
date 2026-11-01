@@ -107,6 +107,14 @@ export const Footer: React.FC = () => {
                   {lang === 'sv' ? 'Mina Sidor (Gästportal)' : 'Guest Portal'}
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => navigate('/contact')}
+                  className="hover:text-[#F2C777] transition-colors cursor-pointer"
+                >
+                  {lang === 'sv' ? 'Kontakt & Förfrågningar' : 'Contact Us & Inquiries'}
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -208,6 +216,9 @@ export const Footer: React.FC = () => {
             </span>
             <button onClick={() => navigate('/faq')} className="hover:text-white cursor-pointer underline">
               {lang === 'sv' ? 'Hotellregler & FAQ' : 'Policies & FAQ'}
+            </button>
+            <button onClick={() => navigate('/contact')} className="hover:text-white cursor-pointer">
+              {lang === 'sv' ? 'Kontakt' : 'Contact'}
             </button>
             <button onClick={() => navigate('/our-story')} className="hover:text-white cursor-pointer">
               {lang === 'sv' ? 'Om Hotellet' : 'About'}

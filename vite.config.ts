@@ -1,11 +1,58 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, Plugin} from 'vite';
+
+function devContactApiPlugin(): Plugin {
+  return {
+    name: 'dev-contact-api',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url === '/website/api/contact/' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk: Buffer | string) => {
+            body += chunk;
+          });
+          req.on('end', () => {
+            try {
+              const parsed = JSON.parse(body);
+              if (!parsed.name || !parsed.email || !parsed.subject || !parsed.message) {
+                res.statusCode = 400;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Missing required fields' }));
+                return;
+              }
+              res.statusCode = 201;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(
+                JSON.stringify({
+                  id: Date.now(),
+                  name: parsed.name,
+                  email: parsed.email,
+                  phone: parsed.phone || '',
+                  subject: parsed.subject,
+                  message: parsed.message,
+                  created_at: new Date().toISOString(),
+                  status: 'success',
+                })
+              );
+            } catch {
+              res.statusCode = 400;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Invalid JSON payload' }));
+            }
+          });
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), devContactApiPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -20,3 +67,4 @@ export default defineConfig(() => {
     },
   };
 });
+

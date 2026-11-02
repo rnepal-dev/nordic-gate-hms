@@ -28,6 +28,8 @@ import { GalleryListView } from './features/admin/gallery/GalleryListView.tsx';
 import { RoomListView } from './features/admin/rooms/RoomListView.tsx';
 import { RoomTypeListView } from './features/admin/room-types/RoomTypeListView.tsx';
 import { RoomAmenityListView } from './features/admin/room-amenities/RoomAmenityListView.tsx';
+import { RatePlanListView } from './features/admin/pricing/rate-plans/RatePlanListView.tsx';
+import { NightlyRateListView } from './features/admin/pricing/nightly-rates/NightlyRateListView.tsx';
 import { ModulePlaceholderView } from './features/admin/common/ModulePlaceholderView.tsx';
 import type { BreadcrumbItem } from './components/admin/AdminBreadcrumbs.tsx';
 
@@ -51,6 +53,18 @@ function AppContent() {
     } else if (currentRoute === '/admin/room-amenities' || currentRoute.startsWith('/admin/room-amenities/')) {
       breadcrumbs = [{ label: 'Room Amenities', route: '/admin/room-amenities' }];
       childView = <RoomAmenityListView />;
+    } else if (currentRoute === '/admin/pricing/rate-plans' || currentRoute.startsWith('/admin/pricing/rate-plans')) {
+      breadcrumbs = [
+        { label: 'Pricing & Yield', route: '/admin/pricing/rate-plans' },
+        { label: 'Rate Plans', route: '/admin/pricing/rate-plans' },
+      ];
+      childView = <RatePlanListView />;
+    } else if (currentRoute === '/admin/pricing/nightly-rates' || currentRoute.startsWith('/admin/pricing/nightly-rates')) {
+      breadcrumbs = [
+        { label: 'Pricing & Yield', route: '/admin/pricing/rate-plans' },
+        { label: 'Nightly Rates', route: '/admin/pricing/nightly-rates' },
+      ];
+      childView = <NightlyRateListView />;
     } else if (currentRoute === '/admin/faqs' || currentRoute.startsWith('/admin/faqs/')) {
       breadcrumbs = [{ label: 'FAQs Management', route: '/admin/faqs' }];
       childView = <FaqListView />;

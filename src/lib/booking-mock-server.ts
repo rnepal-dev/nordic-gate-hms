@@ -148,6 +148,175 @@ const RATE_PLANS_DATA = [
   },
 ];
 
+interface StoredNightlyRateRecord {
+  id: number;
+  room_type: number;
+  room_type_name: string;
+  rate_plan: number;
+  rate_plan_name: string;
+  stay_date: string;
+  price: string;
+  currency: string;
+  minimum_stay: number;
+  is_closed_to_arrival: boolean;
+  is_closed_to_departure: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+const NIGHTLY_RATES_DATA: StoredNightlyRateRecord[] = [
+  {
+    id: 1,
+    room_type: 1,
+    room_type_name: 'Compact Double Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-15',
+    price: '1295.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 2,
+    room_type: 1,
+    room_type_name: 'Compact Double Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-16',
+    price: '1295.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 3,
+    room_type: 1,
+    room_type_name: 'Compact Double Room',
+    rate_plan: 2,
+    rate_plan_name: 'Advance Purchase — 15% Saver',
+    stay_date: '2026-11-15',
+    price: '1100.00',
+    currency: 'SEK',
+    minimum_stay: 2,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 4,
+    room_type: 2,
+    room_type_name: 'Compact Twin Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-15',
+    price: '1395.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 5,
+    room_type: 3,
+    room_type_name: 'Standard Twin Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-15',
+    price: '1650.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 6,
+    room_type: 4,
+    room_type_name: 'Superior Double Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-15',
+    price: '2150.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 7,
+    room_type: 4,
+    room_type_name: 'Superior Double Room',
+    rate_plan: 3,
+    rate_plan_name: 'Stay & Dine Gastronomy Package',
+    stay_date: '2026-11-15',
+    price: '2900.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 8,
+    room_type: 5,
+    room_type_name: 'Family Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-15',
+    price: '2650.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 9,
+    room_type: 4,
+    room_type_name: 'Superior Double Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-16',
+    price: '2150.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 10,
+    room_type: 5,
+    room_type_name: 'Family Room',
+    rate_plan: 1,
+    rate_plan_name: 'Flexible Heritage Rate',
+    stay_date: '2026-11-16',
+    price: '2650.00',
+    currency: 'SEK',
+    minimum_stay: 1,
+    is_closed_to_arrival: false,
+    is_closed_to_departure: false,
+    created_at: '2026-10-01T08:00:00Z',
+    updated_at: '2026-10-20T12:00:00Z',
+  },
+];
+
 // In-memory bookings store initialized with real historical/active bookings
 const BOOKINGS_STORE: StoredBookingRecord[] = [
   {
@@ -257,64 +426,221 @@ export function handleDevBookingApi(req: IncomingMessage, res: ServerResponse): 
     res.end(JSON.stringify(data));
   };
 
-  // 1. GET /pricing/api/rate-plans/
-  if (pathname === '/pricing/api/rate-plans/' && method === 'GET') {
-    const plans = RATE_PLANS_DATA.map(({ multiplier, ...rest }) => rest);
-    sendJson(200, plans);
-    return true;
-  }
-
-  // 2. GET /pricing/api/rate-plans/{id}/
-  const ratePlanMatch = pathname.match(/^\/pricing\/api\/rate-plans\/(\d+)\/?$/);
-  if (ratePlanMatch && method === 'GET') {
-    const planId = parseInt(ratePlanMatch[1], 10);
-    const plan = RATE_PLANS_DATA.find((p) => p.id === planId);
-    if (!plan) {
-      sendJson(404, { detail: 'Rate plan not found.' });
+  // 1. Rate Plans: GET & POST /pricing/api/rate-plans/
+  if (pathname === '/pricing/api/rate-plans/') {
+    if (method === 'GET') {
+      const plans = RATE_PLANS_DATA.map(({ multiplier, ...rest }) => rest);
+      sendJson(200, plans);
       return true;
     }
-    const { multiplier, ...rest } = plan;
-    sendJson(200, rest);
-    return true;
+    if (method === 'POST') {
+      let bodyStr = '';
+      req.on('data', (c) => { bodyStr += c; });
+      req.on('end', () => {
+        try {
+          const body = JSON.parse(bodyStr);
+          const newId = Math.max(...RATE_PLANS_DATA.map((p) => p.id), 0) + 1;
+          const newPlan = {
+            id: newId,
+            name: body.name || 'New Rate Plan',
+            code: body.code || `PLAN-${newId}`,
+            description: body.description || '',
+            cancellation_policy: body.cancellation_policy || 'flexible',
+            free_cancellation_deadline_hours: body.free_cancellation_deadline_hours !== undefined ? body.free_cancellation_deadline_hours : 24,
+            breakfast_included: Boolean(body.breakfast_included),
+            pool_included: Boolean(body.pool_included),
+            is_active: body.is_active !== undefined ? Boolean(body.is_active) : true,
+            room_types: Array.isArray(body.room_types) ? body.room_types.map(Number) : [1, 2, 3, 4, 5],
+            multiplier: body.cancellation_policy === 'non_refundable' ? 0.85 : 1.0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          RATE_PLANS_DATA.push(newPlan);
+          const { multiplier, ...rest } = newPlan;
+          sendJson(201, rest);
+        } catch {
+          sendJson(400, { detail: 'Invalid JSON payload' });
+        }
+      });
+      return true;
+    }
   }
 
-  // 3. GET /pricing/api/nightly-rates/
-  if (pathname === '/pricing/api/nightly-rates/' && method === 'GET') {
-    const roomTypeId = parseInt(urlObj.searchParams.get('room_type') || '1', 10);
-    const ratePlanId = parseInt(urlObj.searchParams.get('rate_plan') || '1', 10);
-    const startDate = urlObj.searchParams.get('start_date') || '2026-10-24';
-    const endDate = urlObj.searchParams.get('end_date') || '2026-10-26';
+  // 2. Rate Plan by ID: GET, PUT, PATCH /pricing/api/rate-plans/{id}/
+  const ratePlanMatch = pathname.match(/^\/pricing\/api\/rate-plans\/(\d+)\/?$/);
+  if (ratePlanMatch) {
+    const planId = parseInt(ratePlanMatch[1], 10);
+    const planIndex = RATE_PLANS_DATA.findIndex((p) => p.id === planId);
 
-    const roomType = ROOM_TYPES_DATA.find((r) => r.id === roomTypeId) || ROOM_TYPES_DATA[0];
-    const ratePlan = RATE_PLANS_DATA.find((p) => p.id === ratePlanId) || RATE_PLANS_DATA[0];
+    if (method === 'GET') {
+      if (planIndex === -1) {
+        sendJson(404, { detail: 'Rate plan not found.' });
+        return true;
+      }
+      const { multiplier, ...rest } = RATE_PLANS_DATA[planIndex];
+      sendJson(200, rest);
+      return true;
+    }
 
-    const dates = generateStayDates(startDate, endDate);
-    const nightlyRates = dates.map((stayDate, idx) => {
-      // Slightly higher weekend rate for Friday / Saturday
-      const dayOfWeek = new Date(stayDate).getUTCDay();
-      const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
-      const baseAdjusted = roomType.base_price + (isWeekend ? 150 : 0);
-      const computedPrice = Math.round(baseAdjusted * ratePlan.multiplier);
+    if (method === 'PUT' || method === 'PATCH') {
+      let bodyStr = '';
+      req.on('data', (c) => { bodyStr += c; });
+      req.on('end', () => {
+        try {
+          const body = JSON.parse(bodyStr);
+          if (planIndex === -1) {
+            sendJson(404, { detail: 'Rate plan not found.' });
+            return;
+          }
+          const existing = RATE_PLANS_DATA[planIndex];
+          const updated = {
+            ...existing,
+            ...(body.name !== undefined ? { name: body.name } : {}),
+            ...(body.code !== undefined ? { code: body.code } : {}),
+            ...(body.description !== undefined ? { description: body.description } : {}),
+            ...(body.cancellation_policy !== undefined ? { cancellation_policy: body.cancellation_policy } : {}),
+            ...(body.free_cancellation_deadline_hours !== undefined ? { free_cancellation_deadline_hours: body.free_cancellation_deadline_hours } : {}),
+            ...(body.breakfast_included !== undefined ? { breakfast_included: Boolean(body.breakfast_included) } : {}),
+            ...(body.pool_included !== undefined ? { pool_included: Boolean(body.pool_included) } : {}),
+            ...(body.is_active !== undefined ? { is_active: Boolean(body.is_active) } : {}),
+            ...(body.room_types !== undefined ? { room_types: body.room_types.map(Number) } : {}),
+            updated_at: new Date().toISOString(),
+          };
+          RATE_PLANS_DATA[planIndex] = updated;
+          const { multiplier, ...rest } = updated;
+          sendJson(200, rest);
+        } catch {
+          sendJson(400, { detail: 'Invalid JSON payload' });
+        }
+      });
+      return true;
+    }
+  }
 
-      return {
-        id: idx + 1,
-        room_type: roomType.id,
-        room_type_name: roomType.name,
-        rate_plan: ratePlan.id,
-        rate_plan_name: ratePlan.name,
-        stay_date: stayDate,
-        price: computedPrice.toFixed(2),
-        currency: 'SEK',
-        minimum_stay: 1,
-        is_closed_to_arrival: false,
-        is_closed_to_departure: false,
-        created_at: '2026-10-01T08:00:00Z',
-        updated_at: '2026-10-20T12:00:00Z',
-      };
-    });
+  // 3. Nightly Rates: GET & POST /pricing/api/nightly-rates/
+  if (pathname === '/pricing/api/nightly-rates/') {
+    if (method === 'GET') {
+      const roomTypeParam = urlObj.searchParams.get('room_type');
+      const ratePlanParam = urlObj.searchParams.get('rate_plan');
+      const startDateParam = urlObj.searchParams.get('start_date');
+      const endDateParam = urlObj.searchParams.get('end_date');
+      const stayDateParam = urlObj.searchParams.get('stay_date');
 
-    sendJson(200, nightlyRates);
-    return true;
+      let results = [...NIGHTLY_RATES_DATA];
+
+      if (roomTypeParam) {
+        const rtId = parseInt(roomTypeParam, 10);
+        results = results.filter((r) => r.room_type === rtId);
+      }
+      if (ratePlanParam) {
+        const rpId = parseInt(ratePlanParam, 10);
+        results = results.filter((r) => r.rate_plan === rpId);
+      }
+      if (stayDateParam) {
+        results = results.filter((r) => r.stay_date === stayDateParam);
+      }
+      if (startDateParam && endDateParam) {
+        results = results.filter((r) => r.stay_date >= startDateParam && r.stay_date < endDateParam);
+      } else if (startDateParam) {
+        results = results.filter((r) => r.stay_date >= startDateParam);
+      } else if (endDateParam) {
+        results = results.filter((r) => r.stay_date <= endDateParam);
+      }
+
+      sendJson(200, results);
+      return true;
+    }
+
+    if (method === 'POST') {
+      let bodyStr = '';
+      req.on('data', (c) => { bodyStr += c; });
+      req.on('end', () => {
+        try {
+          const body = JSON.parse(bodyStr);
+          const roomTypeId = Number(body.room_type);
+          const ratePlanId = Number(body.rate_plan);
+          const roomType = ROOM_TYPES_DATA.find((r) => r.id === roomTypeId) || ROOM_TYPES_DATA[0];
+          const ratePlan = RATE_PLANS_DATA.find((p) => p.id === ratePlanId) || RATE_PLANS_DATA[0];
+
+          const newId = Math.max(...NIGHTLY_RATES_DATA.map((r) => r.id), 0) + 1;
+          const newRate: StoredNightlyRateRecord = {
+            id: newId,
+            room_type: roomTypeId,
+            room_type_name: roomType.name,
+            rate_plan: ratePlanId,
+            rate_plan_name: ratePlan.name,
+            stay_date: body.stay_date || new Date().toISOString().split('T')[0],
+            price: typeof body.price === 'string' ? body.price : Number(body.price || 1295).toFixed(2),
+            currency: body.currency || 'SEK',
+            minimum_stay: body.minimum_stay !== undefined ? Number(body.minimum_stay) : 1,
+            is_closed_to_arrival: Boolean(body.is_closed_to_arrival),
+            is_closed_to_departure: Boolean(body.is_closed_to_departure),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          NIGHTLY_RATES_DATA.push(newRate);
+          sendJson(201, newRate);
+        } catch {
+          sendJson(400, { detail: 'Invalid JSON payload' });
+        }
+      });
+      return true;
+    }
+  }
+
+  // 3B. Nightly Rate by ID: GET, PUT, PATCH /pricing/api/nightly-rates/{id}/
+  const nightlyRateMatch = pathname.match(/^\/pricing\/api\/nightly-rates\/(\d+)\/?$/);
+  if (nightlyRateMatch) {
+    const rateId = parseInt(nightlyRateMatch[1], 10);
+    const rateIndex = NIGHTLY_RATES_DATA.findIndex((r) => r.id === rateId);
+
+    if (method === 'GET') {
+      if (rateIndex === -1) {
+        sendJson(404, { detail: 'Nightly rate not found.' });
+        return true;
+      }
+      sendJson(200, NIGHTLY_RATES_DATA[rateIndex]);
+      return true;
+    }
+
+    if (method === 'PUT' || method === 'PATCH') {
+      let bodyStr = '';
+      req.on('data', (c) => { bodyStr += c; });
+      req.on('end', () => {
+        try {
+          const body = JSON.parse(bodyStr);
+          if (rateIndex === -1) {
+            sendJson(404, { detail: 'Nightly rate not found.' });
+            return;
+          }
+          const existing = NIGHTLY_RATES_DATA[rateIndex];
+          const roomTypeId = body.room_type !== undefined ? Number(body.room_type) : existing.room_type;
+          const ratePlanId = body.rate_plan !== undefined ? Number(body.rate_plan) : existing.rate_plan;
+          const roomType = ROOM_TYPES_DATA.find((r) => r.id === roomTypeId);
+          const ratePlan = RATE_PLANS_DATA.find((p) => p.id === ratePlanId);
+
+          const updated: StoredNightlyRateRecord = {
+            ...existing,
+            ...(body.room_type !== undefined ? { room_type: roomTypeId } : {}),
+            ...(roomType ? { room_type_name: roomType.name } : {}),
+            ...(body.rate_plan !== undefined ? { rate_plan: ratePlanId } : {}),
+            ...(ratePlan ? { rate_plan_name: ratePlan.name } : {}),
+            ...(body.stay_date !== undefined ? { stay_date: body.stay_date } : {}),
+            ...(body.price !== undefined ? { price: typeof body.price === 'string' ? body.price : Number(body.price).toFixed(2) } : {}),
+            ...(body.currency !== undefined ? { currency: body.currency } : {}),
+            ...(body.minimum_stay !== undefined ? { minimum_stay: Number(body.minimum_stay) } : {}),
+            ...(body.is_closed_to_arrival !== undefined ? { is_closed_to_arrival: Boolean(body.is_closed_to_arrival) } : {}),
+            ...(body.is_closed_to_departure !== undefined ? { is_closed_to_departure: Boolean(body.is_closed_to_departure) } : {}),
+            updated_at: new Date().toISOString(),
+          };
+          NIGHTLY_RATES_DATA[rateIndex] = updated;
+          sendJson(200, updated);
+        } catch {
+          sendJson(400, { detail: 'Invalid JSON payload' });
+        }
+      });
+      return true;
+    }
   }
 
   // 4. GET /bookings/api/availability/

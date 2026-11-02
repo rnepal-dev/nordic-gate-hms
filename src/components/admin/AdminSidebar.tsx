@@ -20,6 +20,8 @@ import {
   ExternalLink,
   Hotel,
   X,
+  Receipt,
+  Calendar,
 } from 'lucide-react';
 import { useHotel } from '../../context/HotelContext';
 
@@ -78,6 +80,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           label: 'Room Amenities',
           route: '/admin/room-amenities',
           icon: <Sparkles className="w-4 h-4 shrink-0" />,
+        },
+      ],
+    },
+    {
+      title: 'Pricing & Yield',
+      items: [
+        {
+          label: 'Rate Plans',
+          route: '/admin/pricing/rate-plans',
+          icon: <Receipt className="w-4 h-4 shrink-0" />,
+        },
+        {
+          label: 'Nightly Rates',
+          route: '/admin/pricing/nightly-rates',
+          icon: <Calendar className="w-4 h-4 shrink-0" />,
         },
       ],
     },

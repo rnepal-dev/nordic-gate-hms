@@ -1,115 +1,156 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHotel } from '../context/HotelContext.tsx';
-import { RATE_PLANS, BOOKING_EXTRAS } from '../data/hotelData.ts';
-import { calculateNights, calculateBookingPrice, formatSEK, generateBookingReference, generateTransactionReference } from '../lib/pricing.ts';
-import { validateBookingDates } from '../lib/hotel-logic.ts';
-import type { RatePlanId, SelectedExtra, Reservation, OnlinePaymentMethod } from '../types/hotel.ts';
+import { BOOKING_EXTRAS } from '../data/hotelData.ts';
+import { formatSEK, generateTransactionReference } from '../lib/pricing.ts';
+import { calculateCalendarNights, validateBookingDatesCalendar } from '../lib/date-logic.ts';
+import type { SelectedExtra, Reservation, OnlinePaymentMethod } from '../types/hotel.ts';
 import { 
   Calendar, 
   Users, 
   Check, 
   ArrowRight, 
   ArrowLeft, 
-  Sparkles, 
   ShieldCheck, 
   AlertCircle, 
-  CreditCard,
-  Mail,
-  Phone,
-  User,
-  MapPin,
-  Coffee,
-  Droplets,
-  HeartHandshake,
-  CheckCircle2,
-  Lock,
-  Printer,
-  Smartphone,
+  Mail, 
+  Phone, 
+  User, 
+  MapPin, 
+  Lock, 
+  Printer, 
+  Info,
+  Clock,
+  Sparkles,
   Building2,
   Receipt
 } from 'lucide-react';
 import { CANDIDATE_ROOM_CATALOG } from '../data/propertyData.ts';
 import { HOTEL_IMAGES } from '../data/hotelData.ts';
 import { OnlinePaymentSection } from '../components/booking/OnlinePaymentSection.tsx';
+import { RatePlanSelector } from '../components/booking/RatePlanSelector.tsx';
+import { 
+  useGetAvailabilityQuery, 
+  useCreateReservationMutation 
+} from '../redux/feature/bookings/bookingApi.ts';
+import type { 
+  AvailableRoomType, 
+  AvailableRoomRatePlan, 
+  ReservationCreate, 
+  ReservationResponse 
+} from '../redux/feature/bookings/bookingTypes.ts';
 
 export const BookingEngineView: React.FC = () => {
   const { 
     lang, 
     searchCriteria, 
     setSearchCriteria, 
-    roomCategories, 
     addReservation, 
     setActiveBookingRef,
     navigate 
   } = useHotel();
 
   // Booking Engine Steps:
-  // 1: Search & Room -> 2: Rate & Extras -> 3: Guest Details -> 4: Online Payment -> 5: Review & Book -> 6: Confirmation
+  // 1: Search & Room -> 2: Rate & Extras -> 3: Guest Details -> 4: Online Payment -> 5: Review & Confirmation
   const [step, setStep] = useState<number>(1);
 
-  // Unified candidate rooms catalog
-  const candidateRoomsFormatted = CANDIDATE_ROOM_CATALOG.map(c => ({
-    id: c.id,
-    slug: c.id,
-    name: c.name,
-    nameSv: c.nameSv,
-    tagline: c.taglineEn || '',
-    taglineSv: c.taglineSv || '',
-    description: c.descriptionEn,
-    descriptionSv: c.descriptionSv,
-    dimensionsM2: c.category === 'family' ? 32 : (c.category === 'superior' ? 24 : (c.category === 'standard' ? 20 : 16)),
-    maxGuests: c.maxGuests,
-    bedType: c.bedConfigurationEn,
-    bedTypeSv: c.bedConfigurationSv,
-    startingPriceSEK: c.startingPriceSEK || 1295,
-    image: c.images[0] || HOTEL_IMAGES.deluxeCanal,
-    petEligible: c.petEligible,
-  }));
+  // Search Criteria Form State
+  const [checkIn, setCheckIn] = useState(searchCriteria.checkIn || '2026-11-15');
+  const [checkOut, setCheckOut] = useState(searchCriteria.checkOut || '2026-11-17');
+  const [adults, setAdults] = useState(searchCriteria.adults || 2);
+  const [children, setChildren] = useState(searchCriteria.children || 0);
 
-  // Form State
-  const [checkIn, setCheckIn] = useState(searchCriteria.checkIn);
-  const [checkOut, setCheckOut] = useState(searchCriteria.checkOut);
-  const [adults, setAdults] = useState(searchCriteria.adults);
-  const [children, setChildren] = useState(searchCriteria.children);
-  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
-    return (window.history.state && window.history.state.categoryId) || 'compact-double';
-  });
-  const [selectedRatePlanId, setSelectedRatePlanId] = useState<RatePlanId>(() => {
-    return (window.history.state && window.history.state.ratePlanId) || 'flexible';
-  });
+  // Selected Room & Rate Plan
+  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<number | null>(null);
+  const [selectedRatePlanId, setSelectedRatePlanId] = useState<number | null>(null);
+
+  // Ancillary Extras
   const [selectedExtras, setSelectedExtras] = useState<SelectedExtra[]>([]);
-  const [specialRequests, setSpecialRequests] = useState('');
 
   // Guest Details
-  const [guestName, setGuestName] = useState('Carl von Linné');
+  const [firstName, setFirstName] = useState('Carl');
+  const [lastName, setLastName] = useState('von Linné');
   const [guestEmail, setGuestEmail] = useState('carl.linne@botanik.se');
   const [guestPhone, setGuestPhone] = useState('+46 70 123 45 67');
   const [guestCountry, setGuestCountry] = useState('Sverige');
-  const [policyAccepted, setPolicyAccepted] = useState(true);
+  const [specialRequests, setSpecialRequests] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(true);
 
   // Payment Details (Online Only)
   const [paymentMethod, setPaymentMethod] = useState<OnlinePaymentMethod>('card');
   const [paymentTransactionId, setPaymentTransactionId] = useState<string>('');
   const [paymentCardMask, setPaymentCardMask] = useState<string>('•••• •••• •••• 4242');
-  const [isPaymentAuthorized, setIsPaymentAuthorized] = useState<boolean>(false);
 
-  // Confirmed booking state
+  // Backend Created Reservation (Status: pending_payment until paid)
+  const [backendReservation, setBackendReservation] = useState<ReservationResponse | null>(null);
   const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const nights = calculateNights(checkIn, checkOut);
-  const room = candidateRoomsFormatted.find(r => r.id === selectedCategory) || 
-               roomCategories.find(r => r.id === selectedCategory) || 
-               candidateRoomsFormatted[0];
-  const ratePlan = RATE_PLANS.find(p => p.id === selectedRatePlanId) || RATE_PLANS[0];
+  // Real-time Availability Query
+  const {
+    data: availabilityData,
+    isLoading: isAvailabilityLoading,
+    isFetching: isAvailabilityFetching,
+    error: availabilityError,
+    refetch: refetchAvailability,
+  } = useGetAvailabilityQuery({
+    check_in: checkIn,
+    check_out: checkOut,
+    adults,
+    children,
+  });
+
+  const [createReservationMutation, { isLoading: isCreatingReservation }] = useCreateReservationMutation();
+
+  const nights = calculateCalendarNights(checkIn, checkOut);
+
+  // Auto-select first room type and rate plan when availability data loads
+  const availableRooms: AvailableRoomType[] = availabilityData?.available_room_types || [];
+
+  useEffect(() => {
+    if (availableRooms.length > 0) {
+      if (!selectedRoomTypeId || !availableRooms.some(r => r.room_type_id === selectedRoomTypeId)) {
+        const firstRoom = availableRooms[0];
+        setSelectedRoomTypeId(firstRoom.room_type_id);
+        if (firstRoom.rate_plans && firstRoom.rate_plans.length > 0) {
+          setSelectedRatePlanId(firstRoom.rate_plans[0].rate_plan_id);
+        }
+      }
+    }
+  }, [availableRooms, selectedRoomTypeId]);
+
+  const activeRoomType: AvailableRoomType | undefined = 
+    availableRooms.find(r => r.room_type_id === selectedRoomTypeId) || availableRooms[0];
+
+  const activeRatePlan: AvailableRoomRatePlan | undefined = 
+    activeRoomType?.rate_plans?.find(p => p.rate_plan_id === selectedRatePlanId) || 
+    activeRoomType?.rate_plans?.[0];
+
+  // Map room image from property catalog or fallback
+  const getRoomImage = (roomType: AvailableRoomType): string => {
+    if (roomType.image_url && roomType.image_url.startsWith('http')) {
+      return roomType.image_url;
+    }
+    const matched = CANDIDATE_ROOM_CATALOG.find(
+      c => c.id === roomType.room_type_slug || c.name.toLowerCase() === roomType.room_type_name.toLowerCase()
+    );
+    if (matched && matched.images && matched.images.length > 0) {
+      return matched.images[0];
+    }
+    if (roomType.room_type_slug.includes('suite') || roomType.room_type_name.includes('Suite')) {
+      return HOTEL_IMAGES.heritageSuite;
+    }
+    return HOTEL_IMAGES.deluxeCanal;
+  };
 
   // Price calculations
-  const priceCalc = calculateBookingPrice({
-    nightlyRateSEK: room.startingPriceSEK,
-    nights,
-    ratePlanMultiplier: ratePlan.multiplier,
-    extras: selectedExtras,
-  });
+  const roomTotalSEK = activeRatePlan ? Math.round(parseFloat(activeRatePlan.total_price)) : 0;
+  const extrasTotalSEK = selectedExtras.reduce((sum, e) => sum + e.priceSEK * e.count, 0);
+  const totalGrossSEK = roomTotalSEK + extrasTotalSEK;
+  const vatRoomSEK = Math.round((roomTotalSEK * 12) / 112);
+  const vatExtrasSEK = selectedExtras.reduce((sum, e) => {
+    const rate = e.vatRate || 0.25;
+    return sum + Math.round((e.priceSEK * e.count * rate) / (1 + rate));
+  }, 0);
 
   const toggleExtra = (extraId: string) => {
     const extra = BOOKING_EXTRAS.find(e => e.id === extraId);
@@ -132,9 +173,13 @@ export const BookingEngineView: React.FC = () => {
   };
 
   const handleDatesNext = () => {
-    const val = validateBookingDates(checkIn, checkOut);
+    const val = validateBookingDatesCalendar(checkIn, checkOut);
     if (!val.isValid) {
-      setValidationError(val.error || 'Kontrollera datumen');
+      setValidationError(val.error || (lang === 'sv' ? 'Kontrollera datumen' : 'Please check your dates'));
+      return;
+    }
+    if (!activeRoomType) {
+      setValidationError(lang === 'sv' ? 'Vänligen välj ett ledigt rum' : 'Please select an available room');
       return;
     }
     setValidationError(null);
@@ -143,20 +188,52 @@ export const BookingEngineView: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleGuestInfoSubmit = (e: React.FormEvent) => {
+  const handleGuestInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName || !guestEmail || !guestPhone) {
+    if (!firstName.trim() || !lastName.trim() || !guestEmail.trim() || !guestPhone.trim()) {
       setValidationError(lang === 'sv' ? 'Vänligen fyll i alla obligatoriska fält' : 'Please fill in all required fields');
       return;
     }
-    if (!policyAccepted) {
-      setValidationError(lang === 'sv' ? 'Du måste godkänna hotellvillkoren' : 'You must accept hotel policies');
+    if (!acceptTerms) {
+      setValidationError(lang === 'sv' ? 'Du måste godkänna hotellvillkoren' : 'You must accept the hotel terms');
       return;
     }
+    if (!activeRoomType || !activeRatePlan) {
+      setValidationError(lang === 'sv' ? 'Välj rum och prisplan innan du fortsätter' : 'Please select a room and rate plan first');
+      return;
+    }
+
     setValidationError(null);
-    // Move to Online Payment Layer (Step 4)
-    setStep(4);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+      const payload: ReservationCreate = {
+        room_type_id: activeRoomType.room_type_id,
+        rate_plan_id: activeRatePlan.rate_plan_id,
+        check_in: checkIn,
+        check_out: checkOut,
+        adults,
+        children,
+        guest_first_name: firstName.trim(),
+        guest_last_name: lastName.trim(),
+        guest_email: guestEmail.trim(),
+        guest_phone: guestPhone.trim(),
+        guest_country: guestCountry,
+        special_requests: specialRequests.trim(),
+        accept_booking_terms: true,
+        booking_terms_version: '2026.1',
+      };
+
+      const res = await createReservationMutation(payload).unwrap();
+      setBackendReservation(res);
+      setActiveBookingRef(res.booking_reference);
+
+      // Advance to payment step
+      setStep(4);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      const message = err?.data?.error || err?.message || (lang === 'sv' ? 'Kunde inte skapa reservation. Försök igen.' : 'Could not create reservation. Please try again.');
+      setValidationError(message);
+    }
   };
 
   const handlePaymentSuccess = (details: {
@@ -167,41 +244,35 @@ export const BookingEngineView: React.FC = () => {
     setPaymentMethod(details.method);
     setPaymentTransactionId(details.transactionId);
     setPaymentCardMask(details.cardMask);
-    setIsPaymentAuthorized(true);
-    // Proceed to Step 5 (Review & Book)
-    setStep(5);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
-  const handleConfirmReservation = () => {
-    const bookingRef = generateBookingReference('SH');
-    const txnId = paymentTransactionId || generateTransactionReference();
+    const bookingRef = backendReservation?.booking_reference || `SH-${Math.floor(10000 + Math.random() * 90000)}`;
+    const txnId = details.transactionId || generateTransactionReference();
 
     const newRes: Reservation = {
       id: `res-${Date.now()}`,
       bookingReference: bookingRef,
-      guestName,
+      guestName: `${firstName} ${lastName}`,
       guestEmail,
       guestPhone,
       guestCountry,
-      roomCategoryId: selectedCategory as any,
-      assignedRoomNumber: selectedCategory === 'family-room' ? '207' : selectedCategory === 'superior-double' ? '114' : selectedCategory === 'standard-twin' ? '108' : selectedCategory === 'compact-twin' ? '106' : selectedCategory === 'heritage-suite' ? '304' : '102',
+      roomCategoryId: (activeRoomType?.room_type_slug || 'compact-double') as any,
+      assignedRoomNumber: activeRoomType?.room_type_id === 5 ? '207' : activeRoomType?.room_type_id === 4 ? '114' : activeRoomType?.room_type_id === 3 ? '108' : '102',
       checkInDate: checkIn,
       checkOutDate: checkOut,
       nights,
       adults,
       children,
-      ratePlanId: selectedRatePlanId,
+      ratePlanId: (activeRatePlan?.rate_plan_code?.toLowerCase() || 'flexible') as any,
       extras: selectedExtras,
       specialRequests,
       status: 'confirmed',
-      totalSEK: priceCalc.totalGrossSEK,
-      vatRoomSEK: priceCalc.vatRoomSEK,
-      vatExtrasSEK: priceCalc.vatExtrasSEK,
+      totalSEK: totalGrossSEK,
+      vatRoomSEK,
+      vatExtrasSEK,
       paymentStatus: 'paid',
-      paymentMethod,
+      paymentMethod: details.method,
       paymentTransactionId: txnId,
-      paymentCardMask,
+      paymentCardMask: details.cardMask,
       paymentPaidAt: new Date().toISOString(),
       source: 'direct_website',
       createdAt: new Date().toISOString().split('T')[0],
@@ -210,15 +281,15 @@ export const BookingEngineView: React.FC = () => {
     addReservation(newRes);
     setConfirmedReservation(newRes);
     setActiveBookingRef(bookingRef);
-    setStep(6); // Step 6: Confirmation Voucher & Receipt
+    setStep(6);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const stepsList = [
-    { num: 1, labelSv: 'Rum & Datum', labelEn: 'Dates & Room' },
+    { num: 1, labelSv: 'Rum & Tillgänglighet', labelEn: 'Rooms & Availability' },
     { num: 2, labelSv: 'Pristyp & Tillval', labelEn: 'Rates & Extras' },
     { num: 3, labelSv: 'Gästuppgifter', labelEn: 'Guest Details' },
-    { num: 4, labelSv: 'Onlinebetalning', labelEn: 'Online Payment' },
+    { num: 4, labelSv: 'Säker Betalning', labelEn: 'Online Payment' },
     { num: 5, labelSv: 'Granska & Boka', labelEn: 'Review & Book' },
   ];
 
@@ -234,7 +305,7 @@ export const BookingEngineView: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 text-[#F2C777]" />
                 <span>{lang === 'sv' ? 'Direktbokning online' : 'Direct Hotel Booking'}</span>
                 <span aria-hidden="true" className="text-white/30">·</span>
-                <span>{lang === 'sv' ? '100% Kontantfritt & Säkert' : '100% Cash-Free & Secure'}</span>
+                <span>{lang === 'sv' ? '100% Kontantfritt & Realtidstillgänglighet' : '100% Cash-Free & Real-Time Availability'}</span>
               </div>
               <h1 className="type-h1 text-2xl sm:text-3xl lg:text-4xl text-[#F8F5EF] mt-1 font-bold">
                 {lang === 'sv' ? 'Boka din vistelse på Hotel Nordic Gate' : 'Reserve Your Stay at Hotel Nordic Gate'}
@@ -290,11 +361,11 @@ export const BookingEngineView: React.FC = () => {
           </div>
         )}
 
-        {/* ================= STEP 1: DATES & ROOM SELECTION ================= */}
+        {/* ================= STEP 1: DATES & ROOM SELECTION WITH REAL-TIME AVAILABILITY ================= */}
         {step === 1 && (
           <div className="space-y-8">
             
-            {/* Date & Guest Selector Box (Warm Sand #EDE7DC) */}
+            {/* Search Criteria Box */}
             <div className="bg-[#EDE7DC] p-6 rounded-2xl border border-[#D3C8B9] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end shadow-sm">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
@@ -364,93 +435,180 @@ export const BookingEngineView: React.FC = () => {
               </div>
             </div>
 
-            {/* Room Category Cards Grid */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+            {/* Availability Status Header */}
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+              <div>
                 <h3 className="type-h2 text-2xl sm:text-3xl font-semibold text-[#02070D]">
-                  {lang === 'sv' ? 'Välj Rumskategori' : 'Select Room Category'}
+                  {lang === 'sv' ? 'Lediga rum & Priser i realtid' : 'Available Rooms & Real-time Rates'}
                 </h3>
-                <span className="text-xs text-[#25303A] font-medium">
-                  {nights} {lang === 'sv' ? (nights > 1 ? 'nätter valda' : 'natt vald') : (nights > 1 ? 'nights selected' : 'night selected')} · {lang === 'sv' ? 'Frukostbuffé och poolentré ingår alltid' : 'Buffet breakfast & pool access always included'}
-                </span>
+                <p className="text-xs text-[#5D6B78] mt-0.5">
+                  {nights} {lang === 'sv' ? (nights > 1 ? 'nätter' : 'natt') : (nights > 1 ? 'nights' : 'night')} · {adults} {lang === 'sv' ? 'vuxna' : 'adults'}{children > 0 ? `, ${children} ${lang === 'sv' ? 'barn' : 'children'}` : ''} · {lang === 'sv' ? 'Skandinavisk frukostbuffé och poolentré ingår alltid' : 'Buffet breakfast & heated pool entrance always included'}
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {candidateRoomsFormatted.map((r) => {
-                  const isSelected = selectedCategory === r.id;
-                  const nightlyWithMult = Math.round(r.startingPriceSEK * ratePlan.multiplier);
-                  const totalEst = nightlyWithMult * nights;
+              {isAvailabilityFetching && (
+                <div className="text-xs text-[#BF8641] font-semibold flex items-center gap-1.5 animate-pulse">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{lang === 'sv' ? 'Söker realtidspriser...' : 'Updating availability...'}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Loading Skeleton */}
+            {isAvailabilityLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-[#EDE7DC] p-6 space-y-4 animate-pulse">
+                    <div className="aspect-[16/10] bg-stone-200 rounded-xl" />
+                    <div className="h-6 bg-stone-200 rounded-md w-3/4" />
+                    <div className="h-4 bg-stone-100 rounded-md w-1/2" />
+                    <div className="h-20 bg-stone-50 rounded-xl border border-stone-200" />
+                  </div>
+                ))}
+              </div>
+            ) : availabilityError ? (
+              <div className="p-8 text-center bg-rose-50 rounded-2xl border border-rose-200 space-y-3">
+                <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
+                <h4 className="text-base font-bold text-rose-900">
+                  {lang === 'sv' ? 'Kunde inte hämta tillgänglighet' : 'Could not fetch availability'}
+                </h4>
+                <p className="text-xs text-rose-700 max-w-md mx-auto">
+                  {lang === 'sv'
+                    ? 'Ett nätverksfel uppstod vid kontroll av rumsstatus. Klicka nedan för att försöka igen.'
+                    : 'A network error occurred while checking room inventory. Click below to retry.'}
+                </p>
+                <button
+                  onClick={() => refetchAvailability()}
+                  className="px-5 py-2 bg-[#BF8641] text-white text-xs font-bold rounded-lg cursor-pointer"
+                >
+                  {lang === 'sv' ? 'Försök igen' : 'Retry'}
+                </button>
+              </div>
+            ) : availableRooms.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-[#EDE7DC] space-y-4">
+                <Building2 className="w-12 h-12 text-[#BF8641] mx-auto opacity-70" />
+                <h4 className="font-serif text-2xl font-bold text-[#0D1A26]">
+                  {lang === 'sv' ? 'Inga lediga rum matchar sökkriterierna' : 'No available rooms found'}
+                </h4>
+                <p className="text-xs text-[#5D6B78] max-w-md mx-auto leading-relaxed">
+                  {lang === 'sv'
+                    ? 'För valt antal gäster eller datum finns inga tillgängliga rum. Vänligen justera datumen eller antalet gäster och sök på nytt.'
+                    : 'No rooms match your chosen occupancy or dates. Please select different stay dates or adjust the party size.'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {availableRooms.map((room) => {
+                  const isSelected = selectedRoomTypeId === room.room_type_id;
+                  const roomImage = getRoomImage(room);
 
                   return (
                     <div
-                      key={r.id}
-                      onClick={() => setSelectedCategory(r.id)}
-                      className={`group rounded-2xl border transition-all cursor-pointer overflow-hidden flex flex-col justify-between ${
+                      key={room.room_type_id}
+                      onClick={() => {
+                        setSelectedRoomTypeId(room.room_type_id);
+                        if (room.rate_plans && room.rate_plans.length > 0) {
+                          setSelectedRatePlanId(room.rate_plans[0].rate_plan_id);
+                        }
+                      }}
+                      className={`rounded-2xl border transition-all overflow-hidden bg-white shadow-sm hover:shadow-md cursor-pointer ${
                         isSelected 
-                          ? 'border-[#BF8641] bg-white ring-2 ring-[#BF8641]/20 shadow-xl' 
-                          : 'border-[#D3C8B9] bg-white hover:border-[#BF8641]/60 shadow-sm hover:shadow-md'
+                          ? 'border-[#BF8641] ring-2 ring-[#BF8641]/20' 
+                          : 'border-[#EDE7DC] hover:border-[#D3C8B9]'
                       }`}
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden">
-                        <img
-                          src={r.image}
-                          alt={r.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute top-3 left-3 bg-[#0D1A26]/85 backdrop-blur-xs text-[#F2C777] text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                          {r.dimensionsM2} m² · {r.bedTypeSv}
-                        </div>
-                        {isSelected && (
-                          <div className="absolute top-3 right-3 bg-[#BF8641] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-                            <Check className="w-3.5 h-3.5" />
-                            <span>{lang === 'sv' ? 'Valt rum' : 'Selected'}</span>
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+                        
+                        {/* Image & Quick badges */}
+                        <div className="lg:col-span-5 relative aspect-[16/10] sm:aspect-auto sm:h-full min-h-[220px] rounded-xl overflow-hidden">
+                          <img
+                            src={roomImage}
+                            alt={room.room_type_name}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          />
+                          <div className="absolute top-3 left-3 bg-[#0D1A26]/85 backdrop-blur-xs text-[#F2C777] text-[11px] font-semibold px-2.5 py-1 rounded-md">
+                            {room.size_sqm ? `${room.size_sqm} m²` : '20 m²'} · {lang === 'sv' ? 'Max' : 'Max'} {room.max_occupancy} {lang === 'sv' ? 'gäster' : 'guests'}
                           </div>
-                        )}
-                      </div>
-
-                      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                        <div>
-                          <h4 className="type-h4 text-lg sm:text-xl font-semibold text-[#02070D] group-hover:text-[#BF8641] transition-colors">
-                            {lang === 'sv' ? r.nameSv : r.name}
-                          </h4>
-                          <p className="text-xs text-[#25303A] mt-1 line-clamp-2 leading-relaxed">
-                            {lang === 'sv' ? r.descriptionSv : r.description}
-                          </p>
+                          <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>
+                              {room.available_rooms_count} {lang === 'sv' ? 'rum lediga' : 'rooms left'}
+                            </span>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-3 right-3 bg-[#BF8641] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5" />
+                              <span>{lang === 'sv' ? 'Valt rum' : 'Selected'}</span>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="pt-3 border-t border-[#EDE7DC] flex items-end justify-between">
+                        {/* Room Info & Rate Plan Comparison */}
+                        <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
                           <div>
-                            <span className="text-[10px] uppercase tracking-wider text-[#25303A]/70 block font-semibold">
-                              {lang === 'sv' ? 'Från per natt' : 'From / night'}
-                            </span>
-                            <span className="type-price text-2xl font-bold text-[#02070D]">
-                              {formatSEK(nightlyWithMult, lang)}
-                            </span>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#EDE7DC]">
+                              <div>
+                                <span className="text-[10px] uppercase tracking-wider text-[#BF8641] font-bold block">
+                                  Hotel Nordic Gate · Göteborg
+                                </span>
+                                <h4 className="font-serif text-xl sm:text-2xl font-bold text-[#02070D]">
+                                  {room.room_type_name}
+                                </h4>
+                              </div>
+                              <div className="text-left sm:text-right">
+                                <span className="text-[10px] uppercase tracking-wider text-[#5D6B78] block font-semibold">
+                                  {lang === 'sv' ? 'Från per natt' : 'From / night'}
+                                </span>
+                                <span className="type-price text-2xl font-bold text-[#02070D]">
+                                  {formatSEK(parseFloat(room.starting_price || '1295'), lang)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-[#25303A] mt-2 leading-relaxed">
+                              {room.description}
+                            </p>
+
+                            {room.amenities && (
+                              <div className="mt-3 flex flex-wrap gap-1.5">
+                                {room.amenities.split(',').slice(0, 4).map((a, idx) => (
+                                  <span key={idx} className="text-[11px] px-2 py-0.5 rounded-md bg-[#EDE7DC] text-[#02070D] font-medium">
+                                    {a.trim()}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
-                          <div className="text-right">
-                            <span className="text-[10px] uppercase tracking-wider text-[#25303A]/70 block font-semibold">
-                              {lang === 'sv' ? `Totalt (${nights} nät.)` : `Total (${nights} nts)`}
-                            </span>
-                            <span className="text-xs font-bold text-[#BF8641]">
-                              {formatSEK(totalEst, lang)}
-                            </span>
-                          </div>
+                          {/* Embedded Rate Plan Selector */}
+                          <RatePlanSelector
+                            roomType={room}
+                            selectedRatePlanId={isSelected ? (selectedRatePlanId || (room.rate_plans[0]?.rate_plan_id ?? 0)) : (room.rate_plans[0]?.rate_plan_id ?? 0)}
+                            onSelectRatePlan={(plan) => {
+                              setSelectedRoomTypeId(room.room_type_id);
+                              setSelectedRatePlanId(plan.rate_plan_id);
+                            }}
+                            nights={nights}
+                            lang={lang}
+                          />
+
                         </div>
+
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            )}
 
             {/* Next Button Step 1 */}
             <div className="flex justify-end pt-4">
               <button
                 type="button"
                 onClick={handleDatesNext}
-                className="px-8 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                disabled={!activeRoomType || isAvailabilityLoading}
+                className="px-8 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] disabled:opacity-50 text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
               >
                 <span>{lang === 'sv' ? 'Fortsätt till Pristyp & Tillval' : 'Continue to Rate & Extras'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -461,7 +619,7 @@ export const BookingEngineView: React.FC = () => {
         )}
 
         {/* ================= STEP 2: RATE PLAN & EXTRAS ================= */}
-        {step === 2 && (
+        {step === 2 && activeRoomType && activeRatePlan && (
           <div className="space-y-8">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -469,27 +627,27 @@ export const BookingEngineView: React.FC = () => {
               {/* Left Col: Rate plans & Extras */}
               <div className="lg:col-span-8 space-y-8">
                 
-                {/* 2A. Rate Plan Selection */}
+                {/* 2A. Chosen Rate Plan Review & Switcher */}
                 <div className="space-y-4">
                   <div className="pb-2 border-b border-[#D3C8B9]">
                     <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
-                      {lang === 'sv' ? 'Pristyper & Flexibilitet' : 'Rate Plans & Flexibility'}
+                      {lang === 'sv' ? 'Vald pristyp & avbokningsvillkor' : 'Selected Rate Plan & Flexibility'}
                     </span>
                     <h3 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
-                      {lang === 'sv' ? 'Välj din avbokningspolicy' : 'Select Cancellation Policy'}
+                      {lang === 'sv' ? 'Justera eller bekräfta ditt val' : 'Confirm Your Chosen Plan'}
                     </h3>
                   </div>
 
                   <div className="space-y-3">
-                    {RATE_PLANS.map((plan) => {
-                      const isSelected = selectedRatePlanId === plan.id;
-                      const planNightly = Math.round(room.startingPriceSEK * plan.multiplier);
-                      const planTotal = planNightly * nights;
+                    {activeRoomType.rate_plans.map((plan) => {
+                      const isSelected = selectedRatePlanId === plan.rate_plan_id;
+                      const planTotal = Math.round(parseFloat(plan.total_price));
+                      const planNightly = Math.round(parseFloat(plan.nightly_average));
 
                       return (
                         <div
-                          key={plan.id}
-                          onClick={() => setSelectedRatePlanId(plan.id)}
+                          key={plan.rate_plan_id}
+                          onClick={() => setSelectedRatePlanId(plan.rate_plan_id)}
                           className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
                             isSelected 
                               ? 'bg-white border-[#BF8641] ring-2 ring-[#BF8641]/20 shadow-md' 
@@ -504,11 +662,15 @@ export const BookingEngineView: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                               <h4 className="type-h4 text-base sm:text-lg font-semibold text-[#02070D]">
-                                {lang === 'sv' ? plan.nameSv : plan.name}
+                                {plan.rate_plan_name}
                               </h4>
                               <div className="flex items-center gap-2 text-xs text-[#25303A]/80 font-medium">
                                 <ShieldCheck className="w-3.5 h-3.5 text-[#BF8641]" />
-                                <span>{lang === 'sv' ? plan.cancellationPolicySv : plan.cancellationPolicy}</span>
+                                <span>
+                                  {plan.cancellation_policy === 'flexible'
+                                    ? (lang === 'sv' ? `Fri avbokning fram till ${plan.free_cancellation_deadline_hours || 24} timmar före ankomst` : `Free cancellation up to ${plan.free_cancellation_deadline_hours || 24}h before check-in`)
+                                    : (lang === 'sv' ? 'Ej ombokningsbar · Bästa dagspris' : 'Non-refundable · Best guaranteed rate')}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -527,14 +689,14 @@ export const BookingEngineView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2B. Extras & Add-ons */}
+                {/* 2B. Ancillary Extras */}
                 <div className="space-y-4">
                   <div className="pb-2 border-b border-[#D3C8B9]">
                     <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
-                      {lang === 'sv' ? 'Hotelltillval & Bekvämligheter' : 'Enhance Your Stay'}
+                      {lang === 'sv' ? 'Hotelltillval & Upplevelser' : 'Enhance Your Stay'}
                     </span>
                     <h3 className="type-h3 text-xl sm:text-2xl font-semibold text-[#02070D]">
-                      {lang === 'sv' ? 'Lägg till extra upplevelser' : 'Optional Add-ons'}
+                      {lang === 'sv' ? 'Lägg till guldkant på din vistelse' : 'Optional Add-ons & Experiences'}
                     </h3>
                   </div>
 
@@ -588,7 +750,7 @@ export const BookingEngineView: React.FC = () => {
                     className="px-6 py-3 border border-[#D3C8B9] hover:border-[#BF8641] text-[#25303A] font-semibold text-xs rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>{lang === 'sv' ? 'Tillbaka' : 'Back'}</span>
+                    <span>{lang === 'sv' ? 'Tillbaka till rum' : 'Back to Rooms'}</span>
                   </button>
 
                   <button
@@ -616,7 +778,7 @@ export const BookingEngineView: React.FC = () => {
                   <div className="space-y-2 text-xs text-[#25303A]">
                     <div className="flex justify-between">
                       <span>{lang === 'sv' ? 'Valt rum:' : 'Selected room:'}</span>
-                      <span className="font-bold text-[#02070D]">{lang === 'sv' ? room.nameSv : room.name}</span>
+                      <span className="font-bold text-[#02070D]">{activeRoomType.room_type_name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>{lang === 'sv' ? 'Datum:' : 'Dates:'}</span>
@@ -624,12 +786,12 @@ export const BookingEngineView: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>{lang === 'sv' ? 'Pristyp:' : 'Rate plan:'}</span>
-                      <span>{lang === 'sv' ? ratePlan.nameSv : ratePlan.name}</span>
+                      <span className="font-semibold text-[#02070D]">{activeRatePlan.rate_plan_name}</span>
                     </div>
                     
                     <div className="pt-2 border-t border-[#D3C8B9] flex justify-between">
                       <span>{lang === 'sv' ? 'Rumssumma:' : 'Room subtotal:'}</span>
-                      <span className="font-bold text-[#02070D]">{formatSEK(priceCalc.roomGrossSEK, lang)}</span>
+                      <span className="font-bold text-[#02070D]">{formatSEK(roomTotalSEK, lang)}</span>
                     </div>
 
                     {selectedExtras.map(e => (
@@ -642,16 +804,16 @@ export const BookingEngineView: React.FC = () => {
                     <div className="pt-3 border-t border-[#D3C8B9] space-y-1">
                       <div className="flex justify-between text-base font-bold text-[#02070D]">
                         <span>{lang === 'sv' ? 'Totalt belopp:' : 'Total amount:'}</span>
-                        <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
+                        <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(totalGrossSEK, lang)}</span>
                       </div>
                       <div className="flex justify-between text-[11px] text-[#25303A]/70">
                         <span>{lang === 'sv' ? 'Varav hotellmoms (12%):' : 'Incl. room VAT (12%):'}</span>
-                        <span>{formatSEK(priceCalc.vatRoomSEK, lang)}</span>
+                        <span>{formatSEK(vatRoomSEK, lang)}</span>
                       </div>
-                      {priceCalc.vatExtrasSEK > 0 && (
+                      {vatExtrasSEK > 0 && (
                         <div className="flex justify-between text-[11px] text-[#25303A]/70">
                           <span>{lang === 'sv' ? 'Varav tillvalsmoms (25%):' : 'Incl. extras VAT (25%):'}</span>
-                          <span>{formatSEK(priceCalc.vatExtrasSEK, lang)}</span>
+                          <span>{formatSEK(vatExtrasSEK, lang)}</span>
                         </div>
                       )}
                     </div>
@@ -663,8 +825,8 @@ export const BookingEngineView: React.FC = () => {
           </div>
         )}
 
-        {/* ================= STEP 3: GUEST DETAILS ================= */}
-        {step === 3 && (
+        {/* ================= STEP 3: GUEST DETAILS & BACKEND RESERVATION ================= */}
+        {step === 3 && activeRoomType && activeRatePlan && (
           <div className="space-y-8">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -685,17 +847,34 @@ export const BookingEngineView: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
-                        {lang === 'sv' ? 'För- & Efternamn *' : 'Full Name *'}
+                        {lang === 'sv' ? 'Förnamn *' : 'First Name *'}
                       </label>
                       <div className="flex items-center bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3 py-2.5">
                         <User className="w-4 h-4 text-[#BF8641] mr-2 shrink-0" />
                         <input
                           type="text"
                           required
-                          value={guestName}
-                          onChange={(e) => setGuestName(e.target.value)}
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
                           className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#02070D] focus:outline-none"
-                          placeholder="Carl von Linné"
+                          placeholder="Carl"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
+                        {lang === 'sv' ? 'Efternamn *' : 'Last Name *'}
+                      </label>
+                      <div className="flex items-center bg-[#F8F5EF] rounded-xl border border-[#D3C8B9] px-3 py-2.5">
+                        <User className="w-4 h-4 text-[#BF8641] mr-2 shrink-0" />
+                        <input
+                          type="text"
+                          required
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#02070D] focus:outline-none"
+                          placeholder="von Linné"
                         />
                       </div>
                     </div>
@@ -734,7 +913,7 @@ export const BookingEngineView: React.FC = () => {
                       </div>
                     </div>
 
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D] mb-1.5">
                         {lang === 'sv' ? 'Hemland' : 'Country'}
                       </label>
@@ -774,14 +953,14 @@ export const BookingEngineView: React.FC = () => {
                     <label className="flex items-start gap-3 text-xs text-[#25303A] cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={policyAccepted}
-                        onChange={(e) => setPolicyAccepted(e.target.checked)}
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
                         className="rounded accent-[#BF8641] text-[#BF8641] mt-0.5 focus:ring-[#BF8641]"
                       />
                       <span>
                         {lang === 'sv'
-                          ? 'Jag godkänner hotellvillkoren och bekräftar att Hotel Nordic Gate är ett kontantfritt och rökfritt hotell med säker onlinebetalning.'
-                          : 'I accept hotel policies and confirm that Hotel Nordic Gate is a cash-free and smoke-free property accepting secure online payments.'}
+                          ? 'Jag godkänner hotellvillkoren (version 2026.1) och bekräftar att Hotel Nordic Gate är ett kontantfritt och rökfritt hotell med säker onlinebetalning.'
+                          : 'I accept hotel policies (version 2026.1) and confirm that Hotel Nordic Gate is a cash-free and smoke-free property accepting secure online payments.'}
                       </span>
                     </label>
                   </div>
@@ -798,10 +977,15 @@ export const BookingEngineView: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="px-8 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      disabled={isCreatingReservation}
+                      className="px-8 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] disabled:opacity-50 text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
                     >
                       <Lock className="w-4 h-4 text-[#F2C777]" />
-                      <span>{lang === 'sv' ? 'Fortsätt till Betalning' : 'Proceed to Payment'}</span>
+                      <span>
+                        {isCreatingReservation 
+                          ? (lang === 'sv' ? 'Reserverar rum...' : 'Reserving room...')
+                          : (lang === 'sv' ? 'Fortsätt till Betalning' : 'Proceed to Payment')}
+                      </span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -819,7 +1003,7 @@ export const BookingEngineView: React.FC = () => {
                   <div className="space-y-2 text-xs text-[#25303A]">
                     <div className="flex justify-between">
                       <span>{lang === 'sv' ? 'Rum & nätter:' : 'Room & nights:'}</span>
-                      <span className="font-bold text-[#02070D]">{formatSEK(priceCalc.roomGrossSEK, lang)}</span>
+                      <span className="font-bold text-[#02070D]">{formatSEK(roomTotalSEK, lang)}</span>
                     </div>
                     {selectedExtras.map(e => (
                       <div key={e.id} className="flex justify-between text-[11px]">
@@ -829,7 +1013,7 @@ export const BookingEngineView: React.FC = () => {
                     ))}
                     <div className="pt-2 border-t border-[#D3C8B9] flex justify-between text-base font-bold text-[#02070D]">
                       <span>{lang === 'sv' ? 'Att betala online:' : 'Due online:'}</span>
-                      <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
+                      <span className="type-price text-xl text-[#BF8641] font-bold">{formatSEK(totalGrossSEK, lang)}</span>
                     </div>
                   </div>
                 </div>
@@ -856,11 +1040,34 @@ export const BookingEngineView: React.FC = () => {
               </p>
             </div>
 
+            {/* Backend Integration Architecture Callout */}
+            {backendReservation && (
+              <div className="p-4 rounded-xl bg-[#0D1A26] border border-[#BF8641]/40 text-[#F8F5EF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs uppercase px-2.5 py-0.5 rounded bg-amber-500/20 text-[#F2C777] font-bold border border-amber-500/30">
+                      STATUS: PENDING_PAYMENT
+                    </span>
+                    <span className="text-xs text-[#D3C8B9] font-medium">
+                      Bokningsreferens: <strong className="font-mono text-[#F8F5EF]">{backendReservation.booking_reference}</strong>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#D3C8B9]/80 leading-relaxed max-w-2xl">
+                    Rummet är reserverat i hotellets bokningsdatabas. Slutför betalningen nedan för att erhålla ditt bekräftade kvitto.
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-[10px] uppercase text-[#D3C8B9] block font-semibold">{lang === 'sv' ? 'Belopp SEK' : 'Total SEK'}</span>
+                  <span className="text-xl font-mono font-bold text-[#F2C777]">{formatSEK(totalGrossSEK, lang)}</span>
+                </div>
+              </div>
+            )}
+
             <OnlinePaymentSection
-              totalGrossSEK={priceCalc.totalGrossSEK}
-              vatRoomSEK={priceCalc.vatRoomSEK}
-              vatExtrasSEK={priceCalc.vatExtrasSEK}
-              guestName={guestName}
+              totalGrossSEK={totalGrossSEK}
+              vatRoomSEK={vatRoomSEK}
+              vatExtrasSEK={vatExtrasSEK}
+              guestName={`${firstName} ${lastName}`}
               guestEmail={guestEmail}
               guestPhone={guestPhone}
               onPaymentSuccess={handlePaymentSuccess}
@@ -869,126 +1076,8 @@ export const BookingEngineView: React.FC = () => {
           </div>
         )}
 
-        {/* ================= STEP 5: REVIEW & CONFIRM ================= */}
-        {step === 5 && (
-          <div className="space-y-8">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#D3C8B9] space-y-6 shadow-sm">
-              
-              <div className="pb-4 border-b border-[#EDE7DC]">
-                <span className="text-xs uppercase tracking-[0.2em] text-[#BF8641] font-bold">
-                  {lang === 'sv' ? 'Granska din reservation' : 'Review Your Stay'}
-                </span>
-                <h3 className="font-serif text-3xl font-bold text-[#02070D] mt-1">
-                  {lang === 'sv' ? 'Kontrollera uppgifterna inför bekräftelse' : 'Final Reservation Review'}
-                </h3>
-              </div>
-
-              {/* Room Card Preview */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-[#EDE7DC] rounded-xl border border-[#D3C8B9]">
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full sm:w-40 aspect-[16/10] object-cover rounded-lg shadow-xs"
-                />
-                <div className="space-y-1 text-xs">
-                  <span className="text-[10px] text-[#BF8641] uppercase tracking-wider font-bold">
-                    Hotel Nordic Gate · Göteborg
-                  </span>
-                  <h4 className="font-serif text-xl font-bold text-[#02070D]">
-                    {lang === 'sv' ? room.nameSv : room.name}
-                  </h4>
-                  <p className="text-[#25303A] font-medium">{checkIn} – {checkOut} ({nights} {lang === 'sv' ? 'nätter' : 'nights'})</p>
-                  <p className="text-[#25303A]/80">{adults} {lang === 'sv' ? 'vuxna' : 'adults'}{children > 0 ? `, ${children} barn` : ''}</p>
-                </div>
-              </div>
-
-              {/* Verified Online Payment Badge */}
-              <div className="p-4 bg-[#0D1A26] text-[#F8F5EF] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-[#BF8641]/40">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#BF8641]/20 flex items-center justify-center text-[#F2C777] shrink-0">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-[#F2C777] uppercase tracking-wider block">
-                      {lang === 'sv' ? '✓ Betalning auktoriserad online' : '✓ Online Payment Authorized'}
-                    </span>
-                    <span className="text-xs text-[#D3C8B9]">
-                      {paymentMethod === 'card' 
-                        ? `Kortbetalning (${paymentCardMask})` 
-                        : paymentMethod === 'swish'
-                        ? `Swish (${paymentCardMask})`
-                        : paymentMethod === 'klarna'
-                        ? `Klarna (${paymentCardMask})`
-                        : 'Apple Pay'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-left sm:text-right shrink-0">
-                  <span className="text-[10px] text-[#D3C8B9] uppercase tracking-wider block">
-                    {lang === 'sv' ? 'Transaktions-ID' : 'Transaction ID'}
-                  </span>
-                  <span className="font-mono text-xs font-bold text-white">
-                    {paymentTransactionId || 'TXN-NG-PENDING'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Details table */}
-              <div className="space-y-3 text-xs text-[#25303A] bg-[#F8F5EF] p-5 rounded-xl border border-[#EDE7DC]">
-                <div className="flex justify-between py-1 border-b border-[#EDE7DC]">
-                  <span className="font-semibold text-[#02070D]">{lang === 'sv' ? 'Gäst:' : 'Guest:'}</span>
-                  <span>{guestName} ({guestEmail}, {guestPhone})</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-[#EDE7DC]">
-                  <span className="font-semibold text-[#02070D]">{lang === 'sv' ? 'Pristyp:' : 'Rate Plan:'}</span>
-                  <span>{lang === 'sv' ? ratePlan.nameSv : ratePlan.name} ({lang === 'sv' ? ratePlan.cancellationPolicySv : ratePlan.cancellationPolicy})</span>
-                </div>
-                {selectedExtras.length > 0 && (
-                  <div className="flex justify-between py-1 border-b border-[#EDE7DC]">
-                    <span className="font-semibold text-[#02070D]">{lang === 'sv' ? 'Tillval:' : 'Extras:'}</span>
-                    <span>{selectedExtras.map(e => e.name).join(', ')}</span>
-                  </div>
-                )}
-                {specialRequests && (
-                  <div className="flex justify-between py-1 border-b border-[#EDE7DC]">
-                    <span className="font-semibold text-[#02070D]">{lang === 'sv' ? 'Önskemål:' : 'Special Requests:'}</span>
-                    <span>{specialRequests}</span>
-                  </div>
-                )}
-                <div className="flex justify-between py-2 text-sm font-bold text-[#02070D]">
-                  <span>{lang === 'sv' ? 'Totalt belopp att dra (inkl. moms):' : 'Total Amount Charged (incl. VAT):'}</span>
-                  <span className="font-serif text-2xl tabular-nums text-[#02070D]">{formatSEK(priceCalc.totalGrossSEK, lang)}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4">
-                <button
-                  type="button"
-                  onClick={() => setStep(4)}
-                  className="px-6 py-3 border border-[#D3C8B9] hover:border-[#BF8641] text-[#25303A] font-semibold text-xs rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>{lang === 'sv' ? 'Ändra betalsätt' : 'Modify Payment Method'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleConfirmReservation}
-                  className="px-8 py-4 bg-[#BF8641] hover:bg-[#8C5F27] text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer"
-                >
-                  <Check className="w-4 h-4 text-[#F2C777]" />
-                  <span>{lang === 'sv' ? 'Slutför Bokning & Erhåll Kvitto' : 'Confirm & Complete Reservation'}</span>
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
-
         {/* ================= STEP 6: CONFIRMATION VOUCHER & RECEIPT ================= */}
-        {step === 6 && confirmedReservation && (
+        {step === 6 && (confirmedReservation || backendReservation) && (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="bg-[#0D1A26] text-[#F8F5EF] p-8 lg:p-10 rounded-2xl border border-[#BF8641]/40 shadow-2xl space-y-6">
               
@@ -1004,8 +1093,8 @@ export const BookingEngineView: React.FC = () => {
                 </h2>
                 <p className="text-xs text-[#D3C8B9]">
                   {lang === 'sv'
-                    ? `En officiell bekräftelse och kvitto har skickats till ${confirmedReservation.guestEmail}.`
-                    : `An official confirmation and receipt have been sent to ${confirmedReservation.guestEmail}.`}
+                    ? `En officiell bekräftelse och kvitto har skickats till ${guestEmail}.`
+                    : `An official confirmation and receipt have been sent to ${guestEmail}.`}
                 </p>
               </div>
 
@@ -1017,15 +1106,15 @@ export const BookingEngineView: React.FC = () => {
                       {lang === 'sv' ? 'Bokningsnummer' : 'Booking Reference'}
                     </span>
                     <span className="font-mono text-2xl font-bold text-[#F2C777] tracking-wider">
-                      {confirmedReservation.bookingReference}
+                      {backendReservation?.booking_reference || confirmedReservation?.bookingReference}
                     </span>
                   </div>
                   <div className="sm:text-right">
                     <span className="text-[10px] uppercase tracking-wider text-[#D3C8B9] font-bold block">
-                      {lang === 'sv' ? 'Tilldelat rumnummer' : 'Allocated Room'}
+                      {lang === 'sv' ? 'Tilldelad rumskategori' : 'Allocated Room'}
                     </span>
                     <span className="font-serif text-xl font-bold text-white">
-                      Rum {confirmedReservation.assignedRoomNumber}
+                      {backendReservation?.room_type_name || activeRoomType?.room_type_name}
                     </span>
                   </div>
                 </div>
@@ -1033,111 +1122,46 @@ export const BookingEngineView: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-[#D3C8B9]">
                   <div>
                     <span className="text-[10px] text-white/60 uppercase block font-semibold">{lang === 'sv' ? 'Incheckning' : 'Check-in'}</span>
-                    <span className="font-bold text-white">{confirmedReservation.checkInDate}</span>
+                    <span className="font-bold text-white">{checkIn}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-white/60 uppercase block font-semibold">{lang === 'sv' ? 'Utcheckning' : 'Check-out'}</span>
-                    <span className="font-bold text-white">{confirmedReservation.checkOutDate}</span>
+                    <span className="font-bold text-white">{checkOut}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-white/60 uppercase block font-semibold">{lang === 'sv' ? 'Gäster' : 'Guests'}</span>
-                    <span className="font-bold text-white">{confirmedReservation.adults} {lang === 'sv' ? 'vuxna' : 'adults'}</span>
+                    <span className="font-bold text-white">{adults} {lang === 'sv' ? 'vuxna' : 'adults'}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-white/60 uppercase block font-semibold">{lang === 'sv' ? 'Totalt SEK' : 'Total'}</span>
-                    <span className="font-bold text-[#F2C777]">{formatSEK(confirmedReservation.totalSEK, lang)}</span>
+                    <span className="font-bold text-[#F2C777]">{formatSEK(totalGrossSEK, lang)}</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Official Payment Receipt Section */}
-              <div className="bg-[#EDE7DC] text-[#02070D] p-5 rounded-xl border border-[#D3C8B9] space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-[#D3C8B9]">
-                  <div className="flex items-center gap-2">
-                    <Receipt className="w-4 h-4 text-[#BF8641]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#02070D]">
-                      {lang === 'sv' ? 'Officiellt Kvitto underlag (Moms specifikation)' : 'Official Payment Receipt & Taxes'}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                    ✓ {lang === 'sv' ? 'Betald online' : 'Paid online'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div>
-                    <span className="text-[10px] text-[#25303A]/70 uppercase block font-semibold">
-                      {lang === 'sv' ? 'Betalningsmetod' : 'Payment Method'}
-                    </span>
-                    <span className="font-medium text-[#02070D]">
-                      {confirmedReservation.paymentMethod === 'card'
-                        ? `Kort (${confirmedReservation.paymentCardMask || 'Visa'})`
-                        : confirmedReservation.paymentMethod === 'swish'
-                        ? `Swish (${confirmedReservation.paymentCardMask})`
-                        : confirmedReservation.paymentMethod === 'klarna'
-                        ? `Klarna (${confirmedReservation.paymentCardMask})`
-                        : 'Apple Pay'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-[#25303A]/70 uppercase block font-semibold">
-                      {lang === 'sv' ? 'Transaktionsreferens' : 'Transaction Ref'}
-                    </span>
-                    <span className="font-mono text-[11px] text-[#02070D]">
-                      {confirmedReservation.paymentTransactionId || 'TXN-NG-ONLINE'}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-[#25303A]/70 uppercase block font-semibold">
-                      {lang === 'sv' ? 'Moms-specifikation' : 'VAT Specification'}
-                    </span>
-                    <span className="text-[11px] text-[#02070D]">
-                      12%: {formatSEK(confirmedReservation.vatRoomSEK, lang)}
-                      {confirmedReservation.vatExtrasSEK > 0 && ` · 25%: ${formatSEK(confirmedReservation.vatExtrasSEK, lang)}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hotel Practical Reminders */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[#D3C8B9] pt-2">
-                <div className="p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2.5">
-                  <Coffee className="w-4 h-4 text-[#F2C777] shrink-0" />
-                  <span>{lang === 'sv' ? 'Frukost ingår varje morgon' : 'Breakfast buffet included'}</span>
-                </div>
-                <div className="p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2.5">
-                  <Droplets className="w-4 h-4 text-[#F2C777] shrink-0" />
-                  <span>{lang === 'sv' ? 'Pool & bastu fritt under vistelsen' : 'Free indoor pool & sauna'}</span>
-                </div>
-                <div className="p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2.5">
-                  <MapPin className="w-4 h-4 text-[#F2C777] shrink-0" />
-                  <span>{lang === 'sv' ? 'Gamla Tingstadsgatan 1, Göteborg' : 'Gamla Tingstadsgatan 1'}</span>
+                <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-[#D3C8B9]">
+                  <span>Pristyp: <strong className="text-white">{backendReservation?.rate_plan_name || activeRatePlan?.rate_plan_name}</strong></span>
+                  <span>Betalning: <strong className="text-emerald-400">Genomförd ({paymentMethod.toUpperCase()} · {paymentCardMask})</strong></span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-6 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 text-xs font-semibold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
                 >
                   <Printer className="w-4 h-4 text-[#F2C777]" />
-                  <span>{lang === 'sv' ? 'Skriv ut Kvitto & Bokning' : 'Print Voucher & Receipt'}</span>
+                  <span>{lang === 'sv' ? 'Skriv ut bokningskvitto' : 'Print Receipt'}</span>
                 </button>
+
                 <button
+                  type="button"
                   onClick={() => navigate('/guest')}
-                  className="px-6 py-3 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer shadow-md"
+                  className="w-full sm:w-auto px-6 py-3 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  {lang === 'sv' ? 'Gå till Mina Sidor (Gästportal)' : 'Open Guest Portal'}
-                </button>
-                <button
-                  onClick={() => navigate('/')}
-                  className="px-4 py-3 text-xs text-[#D3C8B9] hover:text-white underline cursor-pointer"
-                >
-                  {lang === 'sv' ? 'Till startsidan' : 'Return to Home'}
+                  <span>{lang === 'sv' ? 'Hantera vistelse i Gästportalen' : 'Manage Stay in Guest Portal'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
 

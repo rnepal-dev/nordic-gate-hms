@@ -3,11 +3,17 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig, Plugin} from 'vite';
 
+import { handleDevBookingApi } from './src/lib/booking-mock-server.ts';
+
 function devContactApiPlugin(): Plugin {
   return {
     name: 'dev-contact-api',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
+        if (handleDevBookingApi(req, res)) {
+          return;
+        }
+
         if (req.url === '/website/api/contact/' && req.method === 'POST') {
           let body = '';
           req.on('data', (chunk: Buffer | string) => {

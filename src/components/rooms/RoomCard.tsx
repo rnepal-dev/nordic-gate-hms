@@ -49,13 +49,13 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
             </button>
           </div>
 
-          {/* Starting Price in Image overlay */}
+          {/* Direct Booking Badge in Image overlay */}
           <div className="absolute bottom-3 left-4 text-white">
-            <p className="text-[11px] uppercase tracking-wider text-[#F2C777]">
-              {lang === 'sv' ? 'Frånpris per natt' : 'From per night'}
+            <p className="text-[11px] uppercase tracking-wider text-[#F2C777] font-semibold">
+              {lang === 'sv' ? 'Direktbokningspris' : 'Best Direct Rates'}
             </p>
-            <p className="type-price text-2xl font-bold tracking-tight text-[#F8F5EF]">
-              {formatSEK(room.startingPriceSEK, lang)}
+            <p className="text-sm font-bold tracking-tight text-[#F8F5EF]">
+              {lang === 'sv' ? 'Se tillgänglighet' : 'Check Availability'}
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
           {lang === 'sv' ? 'Se Detaljer' : 'View Details'}
         </button>
         <button
-          onClick={() => navigate('/booking', { categoryId: room.id })}
+          onClick={() => navigate('/book', { categoryId: room.id })}
           className="flex-1 py-2.5 px-3 bg-[#BF8641] hover:bg-[#8C5F27] text-white rounded text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <span>{lang === 'sv' ? 'Boka Svit' : 'Book Now'}</span>

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useHotel } from '../context/HotelContext.tsx';
-import { RATE_PLANS } from '../data/hotelData.ts';
-import { formatSEK } from '../lib/pricing.ts';
 import { 
   Maximize2, 
   Users, 
@@ -27,7 +25,6 @@ interface RoomDetailViewProps {
 export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
   const { lang, roomCategories, navigate } = useHotel();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedRatePlanId, setSelectedRatePlanId] = useState<string>('flexible');
 
   // Check candidate catalog first, then legacy categories
   const candidate = CANDIDATE_ROOM_CATALOG.find(r => r.id === slug || r.name.toLowerCase().replace(/\s+/g, '-') === slug);
@@ -58,9 +55,6 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
   } : (legacy || roomCategories[0]);
 
   const allImages = [room.image, ...room.additionalImages];
-
-  const selectedPlan = RATE_PLANS.find(p => p.id === selectedRatePlanId) || RATE_PLANS[0];
-  const calculatedPrice = Math.round(room.startingPriceSEK * selectedPlan.multiplier);
 
   return (
     <div className="space-y-10 pb-16">
@@ -232,91 +226,69 @@ export const RoomDetailView: React.FC<RoomDetailViewProps> = ({ slug }) => {
 
           </div>
 
-          {/* Right Column: Rate Selection & Reservation Card (4 cols) */}
+          {/* Right Column: Check Rates & Book Section (4 cols) */}
           <div className="lg:col-span-4">
             <div className="sticky top-24 bg-white p-6 rounded-2xl border border-[#EDE7DC] shadow-xl space-y-6">
               
               <div className="pb-4 border-b border-[#EDE7DC] bg-[#F8F5EF] -m-6 mb-2 p-6 rounded-t-2xl">
                 <span className="text-[11px] uppercase tracking-wider text-[#BF8641] font-bold block">
-                  {lang === 'sv' ? 'Bästa pris direkt hos hotellet' : 'Direct Booking Best Price'}
+                  {lang === 'sv' ? 'Officiell Direktbokning' : 'Official Direct Booking'}
                 </span>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-bold text-[#02070D] tabular-nums">
-                    {formatSEK(calculatedPrice, lang)}
-                  </span>
-                  <span className="text-xs text-[#25303A]/70 font-medium">
-                    {lang === 'sv' ? '/ natt inkl. moms' : '/ night incl. VAT'}
-                  </span>
+                <div className="mt-1">
+                  <h3 className="text-xl font-bold text-[#02070D]">
+                    {lang === 'sv' ? 'Se Priser & Tillgänglighet' : 'Check Rates & Availability'}
+                  </h3>
+                  <p className="text-xs text-[#25303A]/80 font-medium mt-1">
+                    {lang === 'sv' ? 'Garanterat lägsta dagspris när du bokar direkt' : 'Best direct rate guaranteed for this room category'}
+                  </p>
                 </div>
               </div>
 
-              {/* Rate Plan Selector */}
-              <div className="space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#02070D]">
-                  {lang === 'sv' ? 'Välj Pristyp & Villkor' : 'Select Rate Plan'}
-                </label>
-
-                <div className="space-y-2.5">
-                  {RATE_PLANS.map((plan) => {
-                    const isSelected = selectedRatePlanId === plan.id;
-                    const planPrice = Math.round(room.startingPriceSEK * plan.multiplier);
-
-                    return (
-                      <button
-                        key={plan.id}
-                        type="button"
-                        onClick={() => setSelectedRatePlanId(plan.id)}
-                        className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                          isSelected 
-                            ? 'border-[#BF8641] bg-[#EDE7DC]/50 ring-2 ring-[#BF8641]' 
-                            : 'border-[#EDE7DC] hover:border-[#D3C8B9] bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-[#02070D]">
-                            {lang === 'sv' ? plan.nameSv : plan.name}
-                          </span>
-                          <span className="font-mono font-bold text-[#02070D] tabular-nums">
-                            {formatSEK(planPrice, lang)}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#25303A] mt-1 leading-snug">
-                          {lang === 'sv' ? plan.cancellationPolicySv : plan.cancellationPolicy}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Inclusions summary */}
-              <div className="p-4 bg-[#EDE7DC] rounded-xl text-xs space-y-2 text-[#25303A] border border-[#D3C8B9]">
+              {/* Direct Booking Inclusions Summary */}
+              <div className="p-4 bg-[#EDE7DC] rounded-xl text-xs space-y-2.5 text-[#25303A] border border-[#D3C8B9]">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#BF8641] shrink-0" />
-                  <span className="font-semibold text-[#02070D]">{lang === 'sv' ? 'Garanterat bästa pris via nordicgate.se' : 'Best price guarantee when booking direct'}</span>
+                  <span className="font-semibold text-[#02070D]">
+                    {lang === 'sv' ? 'Garanterat bästa direktpris' : 'Best rate guarantee when booking direct'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Coffee className="w-4 h-4 text-[#BF8641] shrink-0" />
-                  <span>{lang === 'sv' ? 'Ekologisk frukostbuffé ingår alltid' : 'Organic breakfast always included'}</span>
+                  <span>
+                    {lang === 'sv' ? 'Ekologisk skandinavisk frukostbuffé ingår' : 'Organic breakfast buffet included with stay'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Droplets className="w-4 h-4 text-[#BF8641] shrink-0" />
-                  <span>{lang === 'sv' ? 'Fri entré till pool och bastu' : 'Free access to pool & sauna'}</span>
+                  <span>
+                    {lang === 'sv' ? 'Fri entré till 28°C inomhuspool & bastu' : 'Free access to heated pool & Finnish sauna'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#BF8641] shrink-0" />
+                  <span>
+                    {lang === 'sv' ? 'Flexibla avbokningsvillkor tillgängliga' : 'Flexible cancellation options available'}
+                  </span>
                 </div>
               </div>
 
-              {/* Book Now Button */}
+              {/* Check Rates & Book Button */}
               <button
-                onClick={() => navigate('/booking', { categoryId: room.id, ratePlanId: selectedRatePlanId })}
+                onClick={() => navigate('/book', { categoryId: room.id })}
                 className="w-full py-4 bg-[#BF8641] hover:bg-[#8C5F27] text-white font-bold text-xs lg:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Calendar className="w-4 h-4 text-[#F2C777]" />
-                <span>{lang === 'sv' ? 'Boka Detta Rum' : 'Reserve This Room'}</span>
+                <span>{lang === 'sv' ? 'Se Priser & Boka Rum' : 'Check Rates & Book Room'}</span>
               </button>
 
-              <p className="text-[11px] text-center text-[#25303A]/70 font-medium">
-                {lang === 'sv' ? 'Omedelbar bokningsbekräftelse · Kontantfritt hotell' : 'Instant booking confirmation · Cash-free property'}
-              </p>
+              <div className="space-y-1 text-center">
+                <p className="text-[11px] text-[#25303A]/80 font-medium">
+                  {lang === 'sv' ? 'Omedelbar bekräftelse · Säker kortbetalning' : 'Instant confirmation · Secure card payment'}
+                </p>
+                <p className="text-[11px] text-[#5D6B78]">
+                  {lang === 'sv' ? 'Frågor? Ring receptionen: +46 (0)31 750 19 00' : 'Inquiries? Call front desk: +46 (0)31 750 19 00'}
+                </p>
+              </div>
 
             </div>
           </div>

@@ -89,7 +89,7 @@ export const HomeView: React.FC = () => {
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <button
-                onClick={() => navigate('/booking')}
+                onClick={() => navigate('/book')}
                 className="px-7 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs lg:text-sm font-semibold uppercase tracking-wider rounded transition-all shadow-lg flex items-center gap-2 cursor-pointer"
               >
                 <Calendar className="w-4 h-4 text-[#F2C777]" />

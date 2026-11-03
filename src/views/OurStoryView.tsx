@@ -188,7 +188,7 @@ export const OurStoryView: React.FC = () => {
         </p>
         <div className="pt-2">
           <button
-            onClick={() => navigate('/booking')}
+            onClick={() => navigate('/book')}
             className="px-8 py-3.5 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors shadow-md cursor-pointer inline-flex items-center gap-2"
           >
             <span>{lang === 'sv' ? 'Boka Vistelse' : 'Reserve Your Stay'}</span>

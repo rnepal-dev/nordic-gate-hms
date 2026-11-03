@@ -151,7 +151,7 @@ export const Navbar: React.FC = () => {
 
           {/* Primary Action Button */}
           <button
-            onClick={() => handleNavClick('/booking')}
+            onClick={() => handleNavClick('/book')}
             className="hidden sm:flex items-center gap-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs lg:text-sm font-semibold tracking-wider uppercase px-4 lg:px-5 py-2.5 rounded transition-all shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-[#F2C777]" />
@@ -174,7 +174,7 @@ export const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-[#0D1A26] bg-[#0D1A26] px-6 py-6 space-y-4">
           <button
-            onClick={() => handleNavClick('/booking')}
+            onClick={() => handleNavClick('/book')}
             className="w-full flex items-center justify-center gap-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-semibold tracking-wider uppercase px-5 py-3 rounded transition-all shadow-sm cursor-pointer mb-2"
           >
             <Calendar className="w-4 h-4 text-[#F2C777]" />

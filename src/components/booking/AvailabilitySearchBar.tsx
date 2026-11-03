@@ -36,7 +36,7 @@ export const AvailabilitySearchBar: React.FC<AvailabilitySearchBarProps> = ({ em
       promoCode,
     });
 
-    navigate('/booking');
+    navigate('/book');
   };
 
   return (

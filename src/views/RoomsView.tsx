@@ -242,11 +242,11 @@ export const RoomsView: React.FC = () => {
                 {/* Actions & Price */}
                 <div className="px-6 pb-6 pt-4 border-t border-[#EDE7DC] bg-[#F8F5EF]/40 flex items-center justify-between gap-3">
                   <div>
-                    <span className="text-[11px] text-[#25303A]/70 font-medium block">
-                      {lang === 'sv' ? 'Frånpris per natt' : 'From per night'}
+                    <span className="text-[11px] text-[#BF8641] font-semibold block uppercase tracking-wider">
+                      {lang === 'sv' ? 'Direktbokning' : 'Direct Booking'}
                     </span>
-                    <span className="text-2xl font-bold text-[#02070D] tabular-nums">
-                      {formatSEK(room.startingPriceSEK || 1295, lang)}
+                    <span className="text-sm font-bold text-[#02070D]">
+                      {lang === 'sv' ? 'Se priser & datum' : 'Check Live Rates'}
                     </span>
                   </div>
 
@@ -258,7 +258,7 @@ export const RoomsView: React.FC = () => {
                       {lang === 'sv' ? 'Detaljer' : 'Details'}
                     </button>
                     <button
-                      onClick={() => navigate('/booking', { categoryId: room.id })}
+                      onClick={() => navigate('/book', { categoryId: room.id })}
                       className="px-4 py-2 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-semibold rounded-lg uppercase tracking-wider transition-colors shadow-sm cursor-pointer flex items-center gap-1"
                     >
                       <span>{lang === 'sv' ? 'Boka' : 'Book'}</span>
@@ -368,7 +368,7 @@ export const RoomsView: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
-              onClick={() => navigate('/booking')}
+              onClick={() => navigate('/book')}
               className="px-6 py-3 bg-[#BF8641] hover:bg-[#8C5F27] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition-colors shadow-md cursor-pointer flex items-center gap-2"
             >
               <span>{lang === 'sv' ? 'Boka Online Nu' : 'Book Online Now'}</span>

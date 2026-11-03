@@ -11,6 +11,8 @@ import { Provider } from 'react-redux';
 import { store } from '@/redux/store.ts';
 import { OurStoryView } from './views/OurStoryView.tsx';
 import { BookingEngineView } from './views/BookingEngineView.tsx';
+import { BookView } from './views/BookView.tsx';
+import { LegacyBookingNoticeView } from './views/LegacyBookingNoticeView.tsx';
 import { GuestPortalView } from './views/GuestPortalView.tsx';
 import { StaffDashboardView } from './views/StaffDashboardView.tsx';
 import { FaqView } from './views/FaqView.tsx';
@@ -155,8 +157,11 @@ function AppContent() {
     if (currentRoute === '/our-story' || currentRoute === '/about') {
       return <OurStoryView />;
     }
-    if (currentRoute === '/booking') {
-      return <BookingEngineView />;
+    if (currentRoute === '/book' || currentRoute === '/book/') {
+      return <BookView />;
+    }
+    if (currentRoute === '/booking' || currentRoute === '/booking/') {
+      return <LegacyBookingNoticeView />;
     }
     if (currentRoute === '/guest') {
       return <GuestPortalView />;

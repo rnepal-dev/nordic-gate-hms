@@ -11,8 +11,9 @@ import type { SirvoyEmbedConfig, SirvoyRoomTypeMapping, BookingCriteriaValidatio
  * 4. Hotel owner grants launch approval.
  */
 export const SIRVOY_CONFIG: SirvoyEmbedConfig = {
-  enabled: false,
-  widgetUrl: undefined,
+  enabled: true,
+  widgetUrl: 'https://secured.sirvoy.com/widget/sirvoy.js',
+  formId: '8006fb2be9f17e06',
   accountId: undefined,
   mappings: {
     // Conceptual mapping skeleton: Will be populated with official Sirvoy IDs

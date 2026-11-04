@@ -8,12 +8,12 @@ export interface SirvoyRoomTypeMapping {
 
 export interface SirvoyEmbedConfig {
   /**
-   * Controlled feature flag. Must remain false until official Sirvoy
-   * widget code, channel mappings, and hotel management approval are verified.
+   * Controlled feature flag. Enabled for development / testing with official test form.
    */
   enabled: boolean;
   widgetUrl?: string;
   accountId?: string;
+  formId?: string;
   mappings: Record<string, string>;
 }
 

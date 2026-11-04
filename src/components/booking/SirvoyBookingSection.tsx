@@ -14,7 +14,11 @@ import {
   AlertCircle,
   HelpCircle,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Copy,
+  ChevronDown,
+  ChevronUp,
+  Code
 } from 'lucide-react';
 import { CANDIDATE_ROOM_CATALOG } from '../../data/propertyData.ts';
 
@@ -27,6 +31,8 @@ export const SirvoyBookingSection: React.FC<SirvoyBookingSectionProps> = ({ sele
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [showAdminGuide, setShowAdminGuide] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Look up room name if pre-selected
   const matchedRoom = selectedRoomSlug 
@@ -37,30 +43,53 @@ export const SirvoyBookingSection: React.FC<SirvoyBookingSectionProps> = ({ sele
   const sirvoyRoomId = resolveSirvoyRoomId(selectedRoomSlug);
 
   useEffect(() => {
-    if (!SIRVOY_CONFIG.enabled) {
-      // In pre-launch state, do not attempt to load external scripts
+    if (!SIRVOY_CONFIG.enabled || !containerRef.current) {
       return;
     }
 
-    if (!containerRef.current) return;
-
-    // Boundary for future official Sirvoy JavaScript integration
+    const container = containerRef.current;
     setIsLoading(true);
     setHasError(false);
 
-    try {
-      // Future integration point: Mount official script cleanly
-      // Clean up previous instances on unmount to prevent memory leaks or duplicate widgets
-    } catch {
-      setHasError(true);
-    } finally {
+    const target = container.querySelector('#sirvoy-widget-target') || container;
+
+    // Prevent duplicate script insertion
+    const existing = target.querySelector('script[data-form-id]');
+    if (existing) {
       setIsLoading(false);
+      return;
     }
 
-    return () => {
-      // Cleanup boundary
+    const script = document.createElement('script');
+    script.src = SIRVOY_CONFIG.widgetUrl || 'https://secured.sirvoy.com/widget/sirvoy.js';
+    script.async = true;
+    script.setAttribute('data-form-id', SIRVOY_CONFIG.formId || '8006fb2be9f17e06');
+
+    script.onload = () => {
+      // Sirvoy script loaded; wait briefly for widget markup to render
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 600);
     };
-  }, [searchCriteria, sirvoyRoomId]);
+
+    script.onerror = () => {
+      setIsLoading(false);
+      setHasError(true);
+    };
+
+    target.appendChild(script);
+
+    return () => {
+      // Clean up script on unmount
+      if (target.contains(script)) {
+        try {
+          target.removeChild(script);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [sirvoyRoomId]);
 
   return (
     <div className="space-y-8">
@@ -70,19 +99,19 @@ export const SirvoyBookingSection: React.FC<SirvoyBookingSectionProps> = ({ sele
         id="sirvoy-booking-engine-container"
         className="relative bg-white rounded-2xl border border-[#EDE7DC] shadow-lg overflow-hidden transition-all"
       >
-        {/* If live engine is enabled in future */}
+        {/* Live Sirvoy Engine Container */}
         {SIRVOY_CONFIG.enabled ? (
-          <div className="p-8 min-h-[480px] flex items-center justify-center">
+          <div className="p-4 sm:p-6 lg:p-8 min-h-[500px] relative">
             {isLoading && (
-              <div className="text-center space-y-3">
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center z-10 space-y-3">
                 <div className="w-10 h-10 border-3 border-[#BF8641] border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-xs text-[#25303A] font-semibold">
+                <p className="text-xs text-[#25303A] font-semibold tracking-wide">
                   {lang === 'sv' ? 'Laddar tillgänglighet från Sirvoy...' : 'Loading live availability from Sirvoy...'}
                 </p>
               </div>
             )}
             {hasError && (
-              <div className="p-6 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 max-w-md text-center space-y-3">
+              <div className="p-6 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 max-w-md mx-auto text-center space-y-3 my-12">
                 <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
                 <h4 className="font-bold text-sm">
                   {lang === 'sv' ? 'Bokningsmotorn kunde inte laddas' : 'Booking Engine Temporarily Unavailable'}
@@ -92,8 +121,89 @@ export const SirvoyBookingSection: React.FC<SirvoyBookingSectionProps> = ({ sele
                     ? 'Vänligen kontakta receptionen för omedelbar bokningsassistans.' 
                     : 'Please contact our front desk for direct reservation assistance.'}
                 </p>
+                <div className="pt-2">
+                  <a
+                    href="tel:+46317501900"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#0D1A26] text-white rounded-lg text-xs font-semibold"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#F2C777]" />
+                    <span>+46 (0)31 750 19 00</span>
+                  </a>
+                </div>
               </div>
             )}
+            {/* Target anchor for Sirvoy widget script & DOM injection */}
+            <div id="sirvoy-widget-target" className="sirvoy-engine-wrapper w-full"></div>
+
+            {/* Direct Booking Guarantees (Prominently displayed beneath the widget) */}
+            <div className="mt-8 pt-6 border-t border-[#EDE7DC] grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex items-center gap-3 p-3 bg-[#F8F5EF] rounded-xl border border-[#EDE7DC]">
+                <ShieldCheck className="w-5 h-5 text-[#BF8641] shrink-0" />
+                <div>
+                  <h5 className="font-bold text-xs text-[#02070D]">
+                    {lang === 'sv' ? 'Bästa Prisgaranti' : 'Best Direct Rate'}
+                  </h5>
+                  <p className="text-[11px] text-[#5D6B78]">
+                    {lang === 'sv' ? 'Alltid garanterat lägsta pris vid direktbokning' : 'Guaranteed lowest rate when booking direct'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-[#F8F5EF] rounded-xl border border-[#EDE7DC]">
+                <Coffee className="w-5 h-5 text-[#BF8641] shrink-0" />
+                <div>
+                  <h5 className="font-bold text-xs text-[#02070D]">
+                    {lang === 'sv' ? 'Ekologisk Frukost' : 'Organic Breakfast'}
+                  </h5>
+                  <p className="text-[11px] text-[#5D6B78]">
+                    {lang === 'sv' ? 'Ingår alltid i alla rumspriser' : 'Always included with every reservation'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-[#F8F5EF] rounded-xl border border-[#EDE7DC]">
+                <Droplets className="w-5 h-5 text-[#BF8641] shrink-0" />
+                <div>
+                  <h5 className="font-bold text-xs text-[#02070D]">
+                    {lang === 'sv' ? 'Pool & Bastu' : 'Pool & Sauna Access'}
+                  </h5>
+                  <p className="text-[11px] text-[#5D6B78]">
+                    {lang === 'sv' ? 'Uppvärmd inomhuspool & finsk bastu' : 'Complimentary indoor heated pool & sauna'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Front Desk Direct Support Strip */}
+            <div className="mt-6 p-4 bg-[#F8F5EF] rounded-xl border border-[#EDE7DC] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#0D1A26] flex items-center justify-center text-white shrink-0">
+                  <Phone className="w-4 h-4 text-[#F2C777]" />
+                </div>
+                <div>
+                  <h5 className="font-bold text-xs text-[#02070D]">
+                    {lang === 'sv' ? 'Behöver du personlig assistans?' : 'Need Personal Assistance?'}
+                  </h5>
+                  <p className="text-[11px] text-[#5D6B78]">
+                    {lang === 'sv' ? 'Vår reception i Göteborg är bemannad dygnet runt.' : 'Our Gothenburg reception is staffed 24/7 for you.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <a
+                  href="tel:+46317501900"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0D1A26] hover:bg-[#02070D] text-white text-xs font-semibold transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#F2C777]" />
+                  <span>+46 (0)31 750 19 00</span>
+                </a>
+                <a
+                  href="mailto:reception@nordicgate.se"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#EDE7DC] text-[#0D1A26] border border-[#D3C8B9] text-xs font-semibold transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#BF8641]" />
+                  <span>reception@nordicgate.se</span>
+                </a>
+              </div>
+            </div>
           </div>
         ) : (
           /* Controlled Pre-Launch / Integration In Progress State */
@@ -255,6 +365,90 @@ export const SirvoyBookingSection: React.FC<SirvoyBookingSectionProps> = ({ sele
               </div>
             </div>
 
+          </div>
+        )}
+      </div>
+
+      {/* 2. Admin & Developer Theme Sync Guide (Collapsible) */}
+      <div className="bg-[#EDE7DC]/50 border border-[#D3C8B9] rounded-xl p-4 sm:p-5 transition-all">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setShowAdminGuide(prev => !prev)}
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#0D1A26] hover:text-[#BF8641] transition-colors cursor-pointer"
+          >
+            <Code className="w-4 h-4 text-[#BF8641]" />
+            <span>
+              {lang === 'sv' 
+                ? 'Sirvoy Custom CSS Tema — Administratörsguide' 
+                : 'Sirvoy Custom CSS Theme — Administrator & Developer Guide'}
+            </span>
+            {showAdminGuide ? (
+              <ChevronUp className="w-4 h-4 text-[#BF8641]" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-[#BF8641]" />
+            )}
+          </button>
+
+          <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-white text-[#5D6B78] border border-[#D3C8B9]">
+            Form ID: {SIRVOY_CONFIG.formId || '8006fb2be9f17e06'}
+          </span>
+        </div>
+
+        {showAdminGuide && (
+          <div className="mt-4 pt-4 border-t border-[#D3C8B9] space-y-4 text-xs text-[#25303A]">
+            <p className="leading-relaxed">
+              {lang === 'sv'
+                ? 'För att Sirvoy-motorns interna element (rumskort, datumväljare, knappar och bokningssammanfattning) ska matcha Hotel Nordic Gates exakta designsystem, klistra in vårt anpassade CSS i Sirvoy-administrationen:'
+                : 'To ensure all internal Sirvoy booking elements (room cards, datepicker, buttons, and summary) strictly adhere to Hotel Nordic Gate luxury brand identity, apply our verified custom CSS in your Sirvoy PMS portal:'}
+            </p>
+
+            <ol className="list-decimal list-inside space-y-1.5 pl-1 font-medium">
+              <li>{lang === 'sv' ? 'Logga in i Sirvoy PMS (secured.sirvoy.com).' : 'Log in to your Sirvoy PMS account (secured.sirvoy.com).'}</li>
+              <li>{lang === 'sv' ? 'Gå till: Webbverktyg → Bokningsmotorer.' : 'Navigate to: Web tools → Booking engines.'}</li>
+              <li>{lang === 'sv' ? 'Klicka på "Redigera" för din bokningsmotor (ID: 8006fb2be9f17e06).' : 'Click "Edit" on your booking engine (ID: 8006fb2be9f17e06).'}</li>
+              <li>{lang === 'sv' ? 'Välj fliken "Egen CSS" (Custom CSS), klistra in koden nedan och klicka på "Spara".' : 'Select "Custom CSS", paste the theme stylesheet from `src/styles/sirvoy-custom.css`, and click "Save".'}</li>
+            </ol>
+
+            <div className="bg-[#0D1A26] text-white p-4 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase tracking-wider text-[#F2C777] font-mono">
+                  src/styles/sirvoy-custom.css
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch('/src/styles/sirvoy-custom.css');
+                      const text = await res.text();
+                      await navigator.clipboard.writeText(text);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2500);
+                    } catch {
+                      // fallback
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#BF8641] hover:bg-[#8C5F27] text-white rounded text-xs font-semibold transition-all cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{lang === 'sv' ? 'Kopierat!' : 'Copied!'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{lang === 'sv' ? 'Kopiera CSS' : 'Copy Theme CSS'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-[11px] text-[#EDE7DC]/80">
+                {lang === 'sv' 
+                  ? 'Färdigformatterat med BEM-klasser för sökfält, kalender, rumskort, gästformulär och betalningsöversikt.' 
+                  : 'Pre-configured with official BEM selectors for datepickers, card items, summary bar, and responsive breakpoints.'}
+              </p>
+            </div>
           </div>
         )}
       </div>

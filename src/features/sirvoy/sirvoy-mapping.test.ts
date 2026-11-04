@@ -9,10 +9,10 @@ import {
 
 describe('Sirvoy Integration Architecture & Mapping Tests', () => {
 
-  it('SIRVOY_CONFIG is strictly disabled by default for launch safety', () => {
-    assert.equal(SIRVOY_CONFIG.enabled, false, 'Sirvoy live booking must remain disabled until official approval');
-    assert.equal(SIRVOY_CONFIG.widgetUrl, undefined, 'No fake or unverified script URLs should be preconfigured');
-    assert.equal(SIRVOY_CONFIG.accountId, undefined, 'No fake or unverified account IDs should be preconfigured');
+  it('SIRVOY_CONFIG has the verified official test widget configuration', () => {
+    assert.equal(SIRVOY_CONFIG.enabled, true, 'Sirvoy live test widget enabled for development');
+    assert.equal(SIRVOY_CONFIG.widgetUrl, 'https://secured.sirvoy.com/widget/sirvoy.js');
+    assert.equal(SIRVOY_CONFIG.formId, '8006fb2be9f17e06');
   });
 
   it('INITIAL_SIRVOY_MAPPINGS contains the 5 verified room categories without fake IDs', () => {

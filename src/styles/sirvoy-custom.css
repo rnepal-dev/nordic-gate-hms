@@ -1,0 +1,717 @@
+/**
+ * Hotel Nordic Gate — Sirvoy Booking Engine Custom CSS
+ * 
+ * Instructions for Sirvoy Admin:
+ * 1. Log into your Sirvoy PMS Dashboard.
+ * 2. Navigate to: Web tools → Booking engines → Edit → Custom CSS
+ * 3. Paste the entire contents of this file into the Custom CSS editor and click "Save".
+ *
+ * Design System Specifications:
+ * - Deep Navy:      #0D1A26
+ * - Midnight Black: #02070D
+ * - Gold Champagne: #F2C777
+ * - Gold Antique:   #BF8641
+ * - Gold Burnished: #8C5F27
+ * - Ivory:          #F8F5EF
+ * - Sand:           #EDE7DC
+ * - Stone Border:   #D3C8B9
+ * - Charcoal Body:  #25303A
+ * - White:          #FFFFFF
+ * - Font:           Plus Jakarta Sans, sans-serif
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --hng-navy: #0D1A26;
+  --hng-midnight: #02070D;
+  --hng-gold: #BF8641;
+  --hng-gold-hover: #8C5F27;
+  --hng-gold-champagne: #F2C777;
+  --hng-ivory: #F8F5EF;
+  --hng-sand: #EDE7DC;
+  --hng-stone: #D3C8B9;
+  --hng-charcoal: #25303A;
+  --hng-white: #FFFFFF;
+  --hng-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --hng-radius-sm: 0.5rem;
+  --hng-radius-md: 0.75rem;
+  --hng-radius-lg: 1rem;
+}
+
+/* ==========================================================================
+   1. GLOBAL RESET & BASE STYLING
+   ========================================================================== */
+
+body.context_default {
+  font-family: var(--hng-font) !important;
+  background-color: var(--hng-ivory) !important;
+  color: var(--hng-charcoal) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Main Container Card */
+.box,
+.box.lg\:container {
+  background-color: var(--hng-white) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: var(--hng-radius-lg) !important;
+  box-shadow: 0 4px 20px -2px rgba(13, 26, 38, 0.05) !important;
+  padding: 1.5rem !important;
+}
+
+@media (min-width: 768px) {
+  .box,
+  .box.lg\:container {
+    padding: 2rem !important;
+  }
+}
+
+/* Headings within Sirvoy Engine */
+body.context_default h1,
+body.context_default h2,
+body.context_default h3,
+body.context_default h4,
+body.context_default h5,
+body.context_default h6,
+.page-details__header,
+.card-item__description {
+  font-family: var(--hng-font) !important;
+  color: var(--hng-midnight) !important;
+  letter-spacing: -0.015em !important;
+}
+
+/* ==========================================================================
+   2. SEARCH FORM & DATES CONTROLS
+   ========================================================================== */
+
+.search-form {
+  margin-bottom: 2rem !important;
+  padding-bottom: 1.5rem !important;
+  border-bottom: 1px solid var(--hng-sand) !important;
+}
+
+/* Language selector */
+#language-switcher .select select {
+  font-family: var(--hng-font) !important;
+  font-size: 0.8125rem !important;
+  border-color: var(--hng-sand) !important;
+  border-radius: var(--hng-radius-sm) !important;
+  color: var(--hng-charcoal) !important;
+  background-color: var(--hng-ivory) !important;
+}
+
+/* Floating label wrappers */
+.sirvoy-has-floating-label {
+  position: relative !important;
+}
+
+.sirvoy-has-floating-label label {
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #5D6B78 !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Input & Select controls */
+.input,
+.select select,
+.textarea {
+  font-family: var(--hng-font) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--hng-midnight) !important;
+  background-color: var(--hng-white) !important;
+  border: 1px solid var(--hng-stone) !important;
+  border-radius: var(--hng-radius-md) !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  height: 2.75rem !important;
+}
+
+.input:focus,
+.input:active,
+.select select:focus,
+.select select:active,
+.textarea:focus,
+.textarea:active {
+  border-color: var(--hng-gold) !important;
+  box-shadow: 0 0 0 3px rgba(191, 134, 65, 0.18) !important;
+  outline: none !important;
+}
+
+/* Date summary helper */
+.search-form__date-summary,
+.help {
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  color: #5D6B78 !important;
+  font-weight: 500 !important;
+}
+
+/* Search / Update Button (Replaces default generic green) */
+.search-form__search-button,
+.search-form__search-button.button,
+.search-form__search-button.button.is-success {
+  background-color: var(--hng-navy) !important;
+  color: var(--hng-white) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border: none !important;
+  border-radius: var(--hng-radius-md) !important;
+  height: 2.75rem !important;
+  padding: 0 1.5rem !important;
+  box-shadow: 0 2px 6px rgba(13, 26, 38, 0.15) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.search-form__search-button:hover,
+.search-form__search-button.button:hover {
+  background-color: var(--hng-midnight) !important;
+  color: var(--hng-gold-champagne) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 26, 38, 0.25) !important;
+}
+
+/* ==========================================================================
+   3. AVAILABILITY CALENDAR & JQUERY-UI DATEPICKER
+   ========================================================================== */
+
+/* Toggle link */
+.sirvoy-expandable-block-toggle,
+.sirvoy-expandable-block-wrapper {
+  color: var(--hng-gold) !important;
+  font-weight: 600 !important;
+  font-size: 0.8125rem !important;
+  text-decoration: none !important;
+}
+
+.sirvoy-expandable-block-toggle:hover {
+  color: var(--hng-gold-hover) !important;
+}
+
+/* jQuery UI Datepicker Widget Popup */
+.ui-datepicker,
+.ui-widget-content {
+  font-family: var(--hng-font) !important;
+  background: var(--hng-white) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: var(--hng-radius-lg) !important;
+  box-shadow: 0 10px 30px rgba(13, 26, 38, 0.12) !important;
+  padding: 0.75rem !important;
+  z-index: 9999 !important;
+}
+
+.ui-datepicker .ui-datepicker-header {
+  background: var(--hng-navy) !important;
+  color: var(--hng-white) !important;
+  border: none !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 0.5rem !important;
+}
+
+.ui-datepicker .ui-datepicker-title {
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.02em !important;
+}
+
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+  cursor: pointer !important;
+  border-radius: var(--hng-radius-sm) !important;
+  transition: background 0.2s ease !important;
+}
+
+.ui-datepicker .ui-datepicker-prev:hover,
+.ui-datepicker .ui-datepicker-next:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
+}
+
+.ui-datepicker th {
+  color: #5D6B78 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  padding: 0.5rem 0.25rem !important;
+}
+
+.ui-datepicker td {
+  padding: 0.15rem !important;
+}
+
+.ui-datepicker td a,
+.ui-datepicker td span {
+  font-family: var(--hng-font) !important;
+  font-size: 0.8125rem !important;
+  border-radius: var(--hng-radius-sm) !important;
+  text-align: center !important;
+  padding: 0.4rem !important;
+  border: 1px solid transparent !important;
+  color: var(--hng-charcoal) !important;
+  transition: all 0.15s ease !important;
+}
+
+.ui-datepicker td a:hover {
+  background-color: var(--hng-sand) !important;
+  color: var(--hng-midnight) !important;
+}
+
+.ui-datepicker td.ui-datepicker-current-day a,
+.ui-datepicker .ui-state-active {
+  background-color: var(--hng-gold) !important;
+  color: var(--hng-white) !important;
+  font-weight: 700 !important;
+  border-color: var(--hng-gold) !important;
+}
+
+.ui-datepicker td.ui-datepicker-today a {
+  border: 1px solid var(--hng-gold) !important;
+  color: var(--hng-gold) !important;
+}
+
+/* ==========================================================================
+   4. ROOM RESULTS CARDS
+   ========================================================================== */
+
+.page-results__card-items {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+}
+
+.page-results__card-item.card {
+  background-color: var(--hng-white) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: var(--hng-radius-lg) !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 10px rgba(13, 26, 38, 0.04) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+
+.page-results__card-item.card:hover {
+  border-color: var(--hng-stone) !important;
+  box-shadow: 0 8px 24px rgba(13, 26, 38, 0.08) !important;
+}
+
+/* Card images */
+.card-item__images,
+.card-image {
+  overflow: hidden !important;
+  background-color: var(--hng-navy) !important;
+}
+
+.card-item__images img {
+  transition: transform 0.4s ease !important;
+}
+
+.page-results__card-item:hover .card-item__images img {
+  transform: scale(1.03);
+}
+
+/* Room title & description */
+.card-item__description h3,
+.card-item__description .text-xl,
+.card-item__description .font-semibold {
+  font-family: var(--hng-font) !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: var(--hng-midnight) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.card-item__content {
+  padding: 1.5rem !important;
+}
+
+.sirvoy-long-text__content {
+  font-size: 0.875rem !important;
+  color: var(--hng-charcoal) !important;
+  line-height: 1.6 !important;
+}
+
+/* Amenity Badges */
+.card-item__amenities .tag {
+  background-color: var(--hng-ivory) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: 9999px !important;
+  color: var(--hng-charcoal) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 0.25rem 0.65rem !important;
+  margin-right: 0.35rem !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.card-item__amenities .tag i,
+.card-item__amenities .tag svg {
+  color: var(--hng-gold) !important;
+  margin-right: 0.3rem !important;
+}
+
+/* Room Select Button Bar (contains title, icon, and price) */
+.card-item__select .button,
+.card-item__select .button.js-link-show-booking,
+.card-item__select .js-link-show-booking {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background-color: var(--hng-navy) !important;
+  color: var(--hng-white) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border: 1px solid var(--hng-navy) !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 0.875rem 1.25rem !important;
+  min-height: 3.5rem !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(13, 26, 38, 0.15) !important;
+}
+
+.card-item__select .button:hover,
+.card-item__select .button.js-link-show-booking:hover {
+  background-color: var(--hng-midnight) !important;
+  border-color: var(--hng-gold) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(13, 26, 38, 0.25) !important;
+}
+
+.card-item__select .button .icon {
+  color: var(--hng-gold-champagne) !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Price Box inside Select Button */
+.card-item__select .select__price {
+  text-align: right !important;
+  margin-left: auto !important;
+}
+
+.card-item__select .price__amount {
+  font-family: var(--hng-font) !important;
+  font-size: 1.375rem !important;
+  font-weight: 700 !important;
+  color: var(--hng-gold-champagne) !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.1 !important;
+}
+
+.card-item__select .price__quantity-label {
+  font-size: 0.75rem !important;
+  color: var(--hng-sand) !important;
+  font-weight: 500 !important;
+  text-transform: lowercase !important;
+}
+
+.card-item__select .select__surcharge-label {
+  font-size: 0.6875rem !important;
+  color: var(--hng-stone) !important;
+  text-transform: lowercase !important;
+}
+
+/* Room Options & Units Selector */
+.card-item__options {
+  background-color: var(--hng-ivory) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 1.25rem !important;
+  margin-top: 1rem !important;
+}
+
+.options__item .item__title {
+  font-weight: 600 !important;
+  color: var(--hng-midnight) !important;
+}
+
+select.js-nr-of-units-selector {
+  border: 1px solid var(--hng-gold) !important;
+  border-radius: var(--hng-radius-sm) !important;
+  background-color: var(--hng-white) !important;
+  font-weight: 600 !important;
+  color: var(--hng-midnight) !important;
+}
+
+/* ==========================================================================
+   5. BOOKING SUMMARY BAR (Step 1 Bottom Sticky/Fixed Bar)
+   ========================================================================== */
+
+.page-results__summary {
+  background-color: var(--hng-navy) !important;
+  color: var(--hng-white) !important;
+  border-radius: var(--hng-radius-lg) !important;
+  padding: 1.25rem 1.5rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 10px 25px -5px rgba(13, 26, 38, 0.25) !important;
+}
+
+.summary__selection-label,
+.summary__total-label {
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--hng-stone) !important;
+}
+
+.summary__selection-details {
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  color: var(--hng-white) !important;
+}
+
+.summary__total-amount {
+  font-family: var(--hng-font) !important;
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: var(--hng-gold-champagne) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Next Step Button (Replaces default bright green) */
+.book-results__submit-button,
+.book-results__submit-button.button,
+.book-results__submit-button.button.is-primary {
+  background-color: var(--hng-gold) !important;
+  color: var(--hng-white) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  border: none !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 0.75rem 1.75rem !important;
+  box-shadow: 0 4px 12px rgba(191, 134, 65, 0.3) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.book-results__submit-button:hover,
+.book-results__submit-button.button:hover {
+  background-color: var(--hng-gold-hover) !important;
+  color: var(--hng-white) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(191, 134, 65, 0.4) !important;
+}
+
+/* ==========================================================================
+   6. GUEST DETAILS & CONFIRMATION STEP (Step 2)
+   ========================================================================== */
+
+.page-details__header {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--hng-midnight) !important;
+  border-bottom: 1px solid var(--hng-sand) !important;
+  padding-bottom: 1rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Details summary card */
+.page-details__summary {
+  background-color: var(--hng-ivory) !important;
+  border: 1px solid var(--hng-sand) !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.summary__label {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  color: #5D6B78 !important;
+  letter-spacing: 0.05em !important;
+}
+
+.summary__value {
+  font-weight: 700 !important;
+  color: var(--hng-midnight) !important;
+  font-size: 0.9375rem !important;
+}
+
+/* Specification breakdown table */
+.page-details__table.table {
+  background-color: transparent !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+.page-details__table.table th {
+  background-color: var(--hng-sand) !important;
+  color: var(--hng-midnight) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+}
+
+.page-details__table.table th:first-child {
+  border-top-left-radius: var(--hng-radius-sm) !important;
+  border-bottom-left-radius: var(--hng-radius-sm) !important;
+}
+
+.page-details__table.table th:last-child {
+  border-top-right-radius: var(--hng-radius-sm) !important;
+  border-bottom-right-radius: var(--hng-radius-sm) !important;
+}
+
+.page-details__table.table td {
+  padding: 0.875rem 1rem !important;
+  border-bottom: 1px solid var(--hng-sand) !important;
+  color: var(--hng-charcoal) !important;
+  font-size: 0.875rem !important;
+}
+
+.page-details__table.table tr:last-child td {
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  color: var(--hng-midnight) !important;
+  border-bottom: none !important;
+}
+
+/* Guest input form fields */
+.page-details__guest-details .field {
+  margin-bottom: 1.25rem !important;
+}
+
+/* Form validation feedback */
+.help.is-danger,
+.help.is-info {
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.help.is-danger {
+  color: #B91C1C !important;
+}
+
+/* Navigation buttons (Back / Confirm) */
+.page-details__navigation {
+  margin-top: 2rem !important;
+  padding-top: 1.5rem !important;
+  border-top: 1px solid var(--hng-sand) !important;
+}
+
+.book-details__back-button,
+.book-details__back-button.button {
+  background-color: var(--hng-sand) !important;
+  color: var(--hng-navy) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border: 1px solid var(--hng-stone) !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.book-details__back-button:hover {
+  background-color: var(--hng-stone) !important;
+  color: var(--hng-midnight) !important;
+}
+
+/* Confirm / Book Now Button (Replaces default green) */
+.book-details__submit-button,
+.book-details__submit-button.button,
+.book-details__submit-button.button.is-success {
+  background-color: var(--hng-gold) !important;
+  color: var(--hng-white) !important;
+  font-family: var(--hng-font) !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  border: none !important;
+  border-radius: var(--hng-radius-md) !important;
+  padding: 0.75rem 2rem !important;
+  box-shadow: 0 4px 14px rgba(191, 134, 65, 0.35) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.book-details__submit-button:hover,
+.book-details__submit-button.button:hover {
+  background-color: var(--hng-gold-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(191, 134, 65, 0.45) !important;
+}
+
+/* ==========================================================================
+   7. FOOTER & MISC
+   ========================================================================== */
+
+.copyright {
+  font-family: var(--hng-font) !important;
+  font-size: 0.75rem !important;
+  color: #5D6B78 !important;
+  margin-top: 1.5rem !important;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE BREAKPOINTS (Mobile & Tablet)
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  .search-form__book {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .page-results__card-item.card.is-horizontal {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .card-item__images {
+    width: 100% !important;
+    height: 200px !important;
+  }
+
+  .card-item__images img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .page-results__summary {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+
+  .summary__total {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .book-results__submit-button {
+    width: 100% !important;
+  }
+}
